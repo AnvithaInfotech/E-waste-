@@ -1,0 +1,241 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}Operational Admin Command Center - EcoCycle{% endblock %}
+{% block breadcrumb_active %}Dashboard Overview{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">Operational Admin Command Center ⚙️</h2>
+            <p class="text-muted small mb-0">Triage incoming submissions, assign field collectors, transform collected waste into recycled products, and fulfill orders.</p>
+        </div>
+        <div class="mt-3 mt-md-0 d-flex gap-2">
+            <a href="{% url 'admin_ewaste_list' %}" class="btn btn-adm-primary btn-sm">
+                <i class="bi bi-inbox me-1"></i> E-Waste Submissions
+                {% if pending_submissions > 0 %}
+                    <span class="badge bg-warning text-dark rounded-pill ms-1">{{ pending_submissions }}</span>
+                {% endif %}
+            </a>
+            <a href="{% url 'admin_recycled_products_list' %}" class="btn btn-adm-outline btn-sm">
+                <i class="bi bi-box-seam me-1"></i> Recycled Products
+            </a>
+            <a href="{% url 'admin_order_list' %}" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-bag-check me-1"></i> Orders
+            </a>
+        </div>
+    </div>
+
+    <!-- KPI Metric Cards Grid -->
+    <div class="row g-3 mb-4">
+        <!-- 1. Pending Review -->
+        <div class="col-lg-3 col-sm-6">
+            <div class="adm-card adm-card-stat h-100" style="border-left: 4px solid #f59e0b !important;">
+                <span class="text-muted small fw-semibold">1. Needs Verification</span>
+                <div class="adm-stat-number text-warning mt-1">{{ pending_submissions }}</div>
+                <a href="{% url 'admin_ewaste_list' %}?status=SUBMITTED" class="small text-muted text-decoration-none mt-2 d-block">
+                    Review incoming requests <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- 2. Collector Pickups -->
+        <div class="col-lg-3 col-sm-6">
+            <div class="adm-card adm-card-stat h-100" style="border-left: 4px solid #06b6d4 !important;">
+                <span class="text-muted small fw-semibold">2. Active Field Pickups</span>
+                <div class="adm-stat-number text-info mt-1">{{ pending_pickups }}</div>
+                <a href="{% url 'admin_ewaste_list' %}?status=COLLECTOR_ASSIGNED" class="small text-muted text-decoration-none mt-2 d-block">
+                    Track field dispatches <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- 3. Ready to Recycle -->
+        <div class="col-lg-3 col-sm-6">
+            <div class="adm-card adm-card-stat h-100" style="border-left: 4px solid #059669 !important; background: #f0fdf4;">
+                <span class="text-success small fw-semibold">3. Ready for Recycling</span>
+                <div class="adm-stat-number text-success mt-1">{{ ready_to_recycle_count }}</div>
+                <a href="{% url 'admin_ewaste_list' %}?status=COLLECTED" class="small text-success fw-semibold text-decoration-none mt-2 d-block">
+                    Transform to products <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- 4. Recycled Products -->
+        <div class="col-lg-3 col-sm-6">
+            <div class="adm-card adm-card-stat h-100" style="border-left: 4px solid #6366f1 !important;">
+                <span class="text-muted small fw-semibold">4. Live Recycled Products</span>
+                <div class="adm-stat-number text-primary mt-1">{{ published_products }}</div>
+                <a href="{% url 'admin_recycled_products_list' %}" class="small text-muted text-decoration-none mt-2 d-block">
+                    View published inventory <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Triage Queues Grid -->
+    <div class="row g-4 mb-4">
+        <!-- 1. Pending Verification Queue -->
+        <div class="col-lg-6">
+            <div class="adm-card h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-dark mb-0"><i class="bi bi-inbox text-warning me-2"></i>Pending E-Waste Review</h5>
+                    <a href="{% url 'admin_ewaste_list' %}?status=SUBMITTED" class="btn btn-sm btn-adm-outline">View All</a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small text-uppercase">
+                            <tr>
+                                <th>Item</th>
+                                <th>Citizen</th>
+                                <th>Qty / Wt</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in recent_submissions %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            {% if item.primary_image %}
+                                                <img src="{{ item.primary_image.url }}" alt="img" class="rounded border" style="width: 36px; height: 36px; object-fit: cover;">
+                                            {% endif %}
+                                            <div>
+                                                <div class="fw-bold text-dark text-truncate" style="max-width: 150px;">{{ item.waste_name }}</div>
+                                                <span class="badge bg-light text-dark border font-monospace" style="font-size: 0.65rem;">{{ item.tracking_id }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="small">{{ item.user.username }}</td>
+                                    <td class="small">{{ item.quantity }} pcs<br><span class="text-muted">~{{ item.approximate_weight_kg }} kg</span></td>
+                                    <td class="text-end">
+                                        <a href="{% url 'admin_ewaste_verify' item.id %}" class="btn btn-sm btn-adm-primary">
+                                            Verify & Assign
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted small">
+                                        <i class="bi bi-check-circle text-success fs-3 d-block mb-1"></i>
+                                        No pending submissions in verification queue.
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Collected E-Waste Waiting for Recycling -->
+        <div class="col-lg-6">
+            <div class="adm-card h-100" style="border-top: 3px solid #059669;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-success mb-0"><i class="bi bi-recycle me-2"></i>Collected & Ready to Recycle</h5>
+                    <a href="{% url 'admin_ewaste_list' %}?status=COLLECTED" class="btn btn-sm btn-outline-success">View All</a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small text-uppercase">
+                            <tr>
+                                <th>Collected Item</th>
+                                <th>Weight</th>
+                                <th>Location</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in ready_to_recycle_submissions %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            {% if item.primary_image %}
+                                                <img src="{{ item.primary_image.url }}" alt="img" class="rounded border" style="width: 36px; height: 36px; object-fit: cover;">
+                                            {% endif %}
+                                            <div>
+                                                <div class="fw-bold text-dark text-truncate" style="max-width: 150px;">{{ item.waste_name }}</div>
+                                                <span class="badge bg-light text-dark border font-monospace" style="font-size: 0.65rem;">{{ item.tracking_id }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="small fw-bold text-dark">~{{ item.approximate_weight_kg }} kg</td>
+                                    <td class="small text-muted">{{ item.pickup_city }}</td>
+                                    <td class="text-end">
+                                        <a href="{% url 'admin_recycle_submission' item.id %}" class="btn btn-sm btn-success fw-semibold shadow-sm">
+                                            <i class="bi bi-recycle me-1"></i> Recycle
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted small">
+                                        <i class="bi bi-inbox fs-3 d-block mb-1"></i>
+                                        No collected items waiting for recycling.
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders Section -->
+    <div class="adm-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold text-dark mb-0"><i class="bi bi-bag-check text-primary me-2"></i>Recent Corporate Purchase Orders</h5>
+            <a href="{% url 'admin_order_list' %}" class="btn btn-sm btn-outline-primary">All Orders</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small text-uppercase">
+                    <tr>
+                        <th>Order #</th>
+                        <th>Company Buyer</th>
+                        <th>Total Amount</th>
+                        <th>Payment Status</th>
+                        <th>Fulfillment</th>
+                        <th>Date</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ord in recent_orders %}
+                        <tr>
+                            <td class="font-monospace fw-bold text-primary">{{ ord.order_number }}</td>
+                            <td class="fw-bold text-dark">{{ ord.company_name }}</td>
+                            <td class="fw-bold text-success">₹{{ ord.total_amount }}</td>
+                            <td>
+                                {% if ord.payment_status == 'PAID' %}
+                                    <span class="badge bg-success">Paid</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">{{ ord.get_payment_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">{{ ord.get_order_status_display }}</span>
+                            </td>
+                            <td class="small text-muted">{{ ord.created_at|date:"M d, Y" }}</td>
+                            <td class="text-end">
+                                <a href="{% url 'admin_order_detail' ord.id %}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-eye me-1"></i> View Order
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted small">No corporate orders recorded yet.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

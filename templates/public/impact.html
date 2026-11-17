@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Environmental Impact & Sustainability Dashboard - EcoCycle{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-white border-bottom">
+    <div class="container py-4 text-center">
+        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-semibold mb-3">Live Eco-Metrics</span>
+        <h1 class="fw-bold display-5 text-dark mb-3">Real-World Environmental Impact</h1>
+        <p class="lead text-secondary max-w-700 mx-auto">
+            Through responsible recycling and component refurbishment, our community actively offsets greenhouse gas emissions and conserves natural habitats.
+        </p>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container py-3">
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card card-eco p-4 text-center h-100">
+                    <div class="stat-icon bg-success-subtle text-success mx-auto mb-3">
+                        <i class="bi bi-recycle fs-2"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark">{{ total_weight_kg|floatformat:1 }} kg</h3>
+                    <p class="text-muted small mb-0">Total E-Waste Diverted</p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card card-eco p-4 text-center h-100">
+                    <div class="stat-icon bg-info-subtle text-info mx-auto mb-3">
+                        <i class="bi bi-cloud-sun fs-2"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark">{{ co2_saved_tonnes }} Tons</h3>
+                    <p class="text-muted small mb-0">CO₂ Emissions Prevented</p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card card-eco p-4 text-center h-100">
+                    <div class="stat-icon bg-primary-subtle text-primary mx-auto mb-3">
+                        <i class="bi bi-droplet-half fs-2"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark">{{ water_saved_liters }} L</h3>
+                    <p class="text-muted small mb-0">Industrial Water Saved</p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="card card-eco p-4 text-center h-100">
+                    <div class="stat-icon bg-warning-subtle text-warning mx-auto mb-3">
+                        <i class="bi bi-tree fs-2"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark">{{ landfill_diverted_m3 }} m³</h3>
+                    <p class="text-muted small mb-0">Landfill Space Conserved</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-4">
+            <div class="col-lg-12">
+                <div class="card card-eco p-4">
+                    <h5 class="fw-bold mb-3">Lifecycle Transformation Pathway</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Material Stream</th>
+                                    <th>Recovery Efficiency</th>
+                                    <th>Primary Destination</th>
+                                    <th>Key Environmental Benefit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="fw-bold text-success"><i class="bi bi-cpu me-2"></i>Printed Circuit Boards (PCBs)</td>
+                                    <td><span class="badge bg-success">98.4%</span></td>
+                                    <td>Smelting & Precious Metals Extraction</td>
+                                    <td>Prevents toxic hydrometallurgical leaching runoff</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-primary"><i class="bi bi-battery-charging me-2"></i>Lithium-Ion Batteries</td>
+                                    <td><span class="badge bg-success">94.1%</span></td>
+                                    <td>Cobalt & Nickel Recovery Facilities</td>
+                                    <td>Reduces deep-pit virgin mineral mining in sensitive ecosystems</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-warning"><i class="bi bi-plug me-2"></i>Copper Cabling & Connectors</td>
+                                    <td><span class="badge bg-success">99.2%</span></td>
+                                    <td>B2B Secondary Marketplace for Wire Drawing</td>
+                                    <td>Uses 85% less energy than mining and smelting copper ore</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

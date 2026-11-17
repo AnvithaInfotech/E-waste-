@@ -1,0 +1,383 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}EcoCycle - E-Waste Recycling & Circular Marketplace{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-eco py-5">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <div class="hero-badge mb-3">
+                    <i class="bi bi-shield-check"></i> Certified Zero-Landfill E-Waste Management
+                </div>
+                <h1 class="hero-title mb-3">
+                    Recycle E-Waste.<br>
+                    <span class="hero-gradient-text">Recover Value.</span><br>
+                    Protect the Planet.
+                </h1>
+                <p class="hero-subtext mb-4">
+                    Upload your electronic waste, connect with a certified local collector, and help transform discarded electronics into valuable secondary materials and refurbished products.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{% url 'submit_ewaste' %}" class="btn btn-eco-primary btn-lg px-4 py-3 d-inline-flex align-items-center gap-2">
+                        <i class="bi bi-recycle fs-5"></i> Recycle Your E-Waste
+                    </a>
+                    <a href="{% url 'product_list' %}" class="btn btn-eco-outline btn-lg px-4 py-3 d-inline-flex align-items-center gap-2">
+                        <i class="bi bi-shop fs-5"></i> Explore Recycled Products
+                    </a>
+                </div>
+
+                <div class="d-flex align-items-center gap-4 mt-4 pt-3 border-top">
+                    <div>
+                        <div class="h4 fw-bold text-success mb-0">{{ total_ewaste_kg|floatformat:0 }} kg+</div>
+                        <div class="small text-muted">E-Waste Processed</div>
+                    </div>
+                    <div class="vr"></div>
+                    <div>
+                        <div class="h4 fw-bold text-success mb-0">{{ co2_saved_kg|floatformat:0 }} kg</div>
+                        <div class="small text-muted">CO₂ Avoided</div>
+                    </div>
+                    <div class="vr"></div>
+                    <div>
+                        <div class="h4 fw-bold text-success mb-0">100%</div>
+                        <div class="small text-muted">Traceable Workflow</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="position-relative">
+                    <div class="card card-eco border-0 p-4 shadow-lg" style="background: linear-gradient(145deg, #ffffff, #f0fdf4);">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="badge bg-success px-3 py-2 rounded-pill"><i class="bi bi-lightning-charge me-1"></i> Live Stream</span>
+                            <span class="text-muted small">Real-Time Impact</span>
+                        </div>
+                        
+                        <!-- Visual representation of e-waste collection & conversion -->
+                        <div class="p-3 bg-white rounded-3 border mb-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-success text-white rounded-3 p-3 text-center" style="width: 55px; height: 55px;">
+                                    <i class="bi bi-laptop fs-4"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold text-dark">Old Laptops & Circuit Boards</div>
+                                    <div class="small text-muted">Collected from Urban Centers</div>
+                                </div>
+                                <span class="badge bg-light text-success border">Step 1</span>
+                            </div>
+                        </div>
+
+                        <div class="text-center my-1 text-success fs-5">
+                            <i class="bi bi-arrow-down"></i>
+                        </div>
+
+                        <div class="p-3 bg-white rounded-3 border mb-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-warning text-dark rounded-3 p-3 text-center" style="width: 55px; height: 55px;">
+                                    <i class="bi bi-gear-wide-connected fs-4"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold text-dark">Eco-Smelting & Refining</div>
+                                    <div class="small text-muted">High Purity Cu, Au & Plastics</div>
+                                </div>
+                                <span class="badge bg-light text-warning border">Step 2</span>
+                            </div>
+                        </div>
+
+                        <div class="text-center my-1 text-success fs-5">
+                            <i class="bi bi-arrow-down"></i>
+                        </div>
+
+                        <div class="p-3 bg-white rounded-3 border">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-primary text-white rounded-3 p-3 text-center" style="width: 55px; height: 55px;">
+                                    <i class="bi bi-bag-check fs-4"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold text-dark">B2B Secondary Marketplace</div>
+                                    <div class="small text-muted">Supplied to Green Manufacturers</div>
+                                </div>
+                                <span class="badge bg-light text-primary border">Step 3</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="py-5 bg-white">
+    <div class="container py-4">
+        <div class="text-center max-w-700 mx-auto mb-5">
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-semibold mb-2">Process & Workflow</span>
+            <h2 class="fw-bold text-dark display-6">How EcoCycle Works</h2>
+            <p class="text-muted">A seamless, fully transparent 5-step journey from your doorstep to high-grade industrial circular resources.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg col-md-6">
+                <div class="card card-eco h-100 p-4 text-center">
+                    <div class="stat-icon bg-success-subtle text-success mx-auto mb-3">
+                        <i class="bi bi-cloud-arrow-up-fill fs-3"></i>
+                    </div>
+                    <span class="badge bg-dark text-white rounded-pill mx-auto mb-2 px-3">01</span>
+                    <h5 class="fw-bold">Upload E-Waste</h5>
+                    <p class="text-muted small mb-0">Snap a photo of your discarded laptop, phone, or appliance and submit details with your preferred pickup time.</p>
+                </div>
+            </div>
+
+            <div class="col-lg col-md-6">
+                <div class="card card-eco h-100 p-4 text-center">
+                    <div class="stat-icon bg-info-subtle text-info mx-auto mb-3">
+                        <i class="bi bi-patch-check-fill fs-3"></i>
+                    </div>
+                    <span class="badge bg-dark text-white rounded-pill mx-auto mb-2 px-3">02</span>
+                    <h5 class="fw-bold">Admin Verification</h5>
+                    <p class="text-muted small mb-0">Our operational team verifies your submission, awards you Eco-Points, and assigns a verified local collector.</p>
+                </div>
+            </div>
+
+            <div class="col-lg col-md-6">
+                <div class="card card-eco h-100 p-4 text-center">
+                    <div class="stat-icon bg-warning-subtle text-warning mx-auto mb-3">
+                        <i class="bi bi-truck-flatbed fs-3"></i>
+                    </div>
+                    <span class="badge bg-dark text-white rounded-pill mx-auto mb-2 px-3">03</span>
+                    <h5 class="fw-bold">Collector Pickup</h5>
+                    <p class="text-muted small mb-0">An eco-transport collector visits your location, verifies item weight, captures proof photos, and collects your items.</p>
+                </div>
+            </div>
+
+            <div class="col-lg col-md-6">
+                <div class="card card-eco h-100 p-4 text-center">
+                    <div class="stat-icon bg-danger-subtle text-danger mx-auto mb-3">
+                        <i class="bi bi-cpu-fill fs-3"></i>
+                    </div>
+                    <span class="badge bg-dark text-white rounded-pill mx-auto mb-2 px-3">04</span>
+                    <h5 class="fw-bold">Recycling & Refining</h5>
+                    <p class="text-muted small mb-0">Materials are sorted, tested, dismantled, and processed into high-purity copper, gold, circuit boards, and polymers.</p>
+                </div>
+            </div>
+
+            <div class="col-lg col-md-6">
+                <div class="card card-eco h-100 p-4 text-center">
+                    <div class="stat-icon bg-primary-subtle text-primary mx-auto mb-3">
+                        <i class="bi bi-cart-check-fill fs-3"></i>
+                    </div>
+                    <span class="badge bg-dark text-white rounded-pill mx-auto mb-2 px-3">05</span>
+                    <h5 class="fw-bold">Marketplace B2B</h5>
+                    <p class="text-muted small mb-0">Refurbished hardware and raw recovered materials are published to our B2B marketplace for corporate buyers.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- E-Waste Categories Section -->
+<section class="py-5" style="background-color: #f8fafc;">
+    <div class="container py-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4">
+            <div>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-semibold mb-2">Accepted Materials</span>
+                <h2 class="fw-bold text-dark display-6 mb-0">E-Waste We Recycle</h2>
+            </div>
+            <a href="{% url 'submit_ewaste' %}" class="btn btn-eco-primary mt-3 mt-md-0">
+                Submit Your Items <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="row g-4">
+            {% for cat in categories %}
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="category-card">
+                        <div class="category-icon">
+                            <i class="bi {{ cat.icon_class|default:'bi-cpu' }}"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-1">{{ cat.name }}</h5>
+                        <p class="text-muted small mb-3">{{ cat.description|truncatewords:8 }}</p>
+                        <a href="{% url 'submit_ewaste' %}?category={{ cat.id }}" class="btn btn-sm btn-outline-success rounded-pill px-3">
+                            Recycle This <i class="bi bi-plus-circle ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-center text-muted py-4">
+                    Categories will be displayed here once seeded.
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Why Recycle E-Waste Section -->
+<section class="py-5 bg-white">
+    <div class="container py-4">
+        <div class="text-center max-w-700 mx-auto mb-5">
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-semibold mb-2">Environmental Responsibility</span>
+            <h2 class="fw-bold text-dark display-6">Why Recycle E-Waste With Us?</h2>
+            <p class="text-muted">Electronic waste represents 70% of overall toxic waste in landfills. Together, we can redirect valuable resources.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card card-eco p-4 h-100">
+                    <div class="stat-icon bg-danger-subtle text-danger mb-3">
+                        <i class="bi bi-radioactive fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold">Reduce Toxic Pollution</h5>
+                    <p class="text-muted small mb-0">Prevent hazardous lead, cadmium, and mercury from leaching into groundwater and agricultural soil systems.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card card-eco p-4 h-100">
+                    <div class="stat-icon bg-warning-subtle text-warning mb-3">
+                        <i class="bi bi-gem fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold">Recover Precious Metals</h5>
+                    <p class="text-muted small mb-0">1 metric ton of circuit boards contains 40 to 800 times more gold and 30 to 40 times more copper than one ton of mined ore.</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card card-eco p-4 h-100">
+                    <div class="stat-icon bg-success-subtle text-success mb-3">
+                        <i class="bi bi-infinity fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold">Support Circular Economy</h5>
+                    <p class="text-muted small mb-0">Refurbished components and purified materials re-enter commercial production, reducing virgin resource extraction.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Marketplace Preview Section -->
+<section class="py-5" style="background-color: #f8fafc;">
+    <div class="container py-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4">
+            <div>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold mb-2">B2B E-Commerce Marketplace</span>
+                <h2 class="fw-bold text-dark display-6 mb-0">Recently Published Recycled Products</h2>
+            </div>
+            <a href="{% url 'product_list' %}" class="btn btn-eco-outline mt-3 mt-md-0">
+                Browse Full Catalog <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="row g-4">
+            {% for prod in featured_products %}
+                <div class="col-lg-3 col-md-6">
+                    <div class="product-card">
+                        <div class="product-img-box">
+                            {% if prod.primary_image %}
+                                <img src="{{ prod.primary_image.url }}" alt="{{ prod.product_name }}">
+                            {% else %}
+                                <i class="bi bi-box-seam text-secondary" style="font-size: 3rem;"></i>
+                            {% endif %}
+                            <span class="badge bg-success badge-condition">{{ prod.get_product_condition_display }}</span>
+                        </div>
+                        <div class="p-4 d-flex flex-column flex-grow-1">
+                            <span class="text-muted small text-uppercase fw-bold">{{ prod.category.name }}</span>
+                            <h6 class="fw-bold text-dark mb-2 text-truncate" title="{{ prod.product_name }}">
+                                <a href="{% url 'product_detail' prod.slug %}" class="text-dark text-decoration-none">{{ prod.product_name }}</a>
+                            </h6>
+                            <p class="text-muted small flex-grow-1">{{ prod.description|truncatewords:10 }}</p>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <span class="h5 fw-bold text-success mb-0">₹{{ prod.effective_price }}</span>
+                                    <span class="text-muted small">/ {{ prod.unit }}</span>
+                                </div>
+                                <span class="badge bg-light text-dark border">
+                                    <i class="bi bi-box-fill text-success me-1"></i>{{ prod.quantity_available }} {{ prod.unit }}
+                                </span>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'product_detail' prod.slug %}" class="btn btn-sm btn-outline-success">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-center text-muted py-5">
+                    <i class="bi bi-shop text-secondary" style="font-size: 3rem;"></i>
+                    <p class="mt-2">Marketplace products are currently being populated.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Environmental Impact Statistics Section -->
+<section class="py-5 bg-dark text-white">
+    <div class="container py-4">
+        <div class="text-center max-w-700 mx-auto mb-5">
+            <span class="badge bg-success text-white px-3 py-2 rounded-pill fw-semibold mb-2">Measurable Ecological Footprint</span>
+            <h2 class="fw-bold text-white display-6">Our Collective Environmental Impact</h2>
+            <p class="text-secondary">Tracking every kilogram of electronic waste diverted from toxic landfills.</p>
+        </div>
+
+        <div class="row g-4 text-center">
+            <div class="col-lg col-md-4 col-6">
+                <div class="p-3 border border-secondary rounded-4 bg-dark-card h-100">
+                    <div class="h2 fw-bold text-success mb-1">{{ total_ewaste_kg|floatformat:0 }} kg</div>
+                    <div class="text-light small">E-Waste Collected</div>
+                </div>
+            </div>
+
+            <div class="col-lg col-md-4 col-6">
+                <div class="p-3 border border-secondary rounded-4 bg-dark-card h-100">
+                    <div class="h2 fw-bold text-success mb-1">{{ total_items_recycled }}+</div>
+                    <div class="text-light small">Products Recycled</div>
+                </div>
+            </div>
+
+            <div class="col-lg col-md-4 col-6">
+                <div class="p-3 border border-secondary rounded-4 bg-dark-card h-100">
+                    <div class="h2 fw-bold text-info mb-1">{{ total_users }}</div>
+                    <div class="text-light small">Users Registered</div>
+                </div>
+            </div>
+
+            <div class="col-lg col-md-4 col-6">
+                <div class="p-3 border border-secondary rounded-4 bg-dark-card h-100">
+                    <div class="h2 fw-bold text-warning mb-1">{{ total_companies }}</div>
+                    <div class="text-light small">Companies Connected</div>
+                </div>
+            </div>
+
+            <div class="col-lg col-md-4 col-6">
+                <div class="p-3 border border-secondary rounded-4 bg-dark-card h-100">
+                    <div class="h2 fw-bold text-primary mb-1">{{ total_collectors }}</div>
+                    <div class="text-light small">Active Local Collectors</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Banner -->
+<section class="py-5" style="background: linear-gradient(135deg, #064e3b 0%, #047857 100%);">
+    <div class="container py-4 text-center text-white">
+        <h2 class="display-5 fw-bold mb-3">Have E-Waste? Start Recycling Today.</h2>
+        <p class="lead mb-4 text-light max-w-700 mx-auto">
+            Join thousands of environmentally conscious citizens and businesses. Dispose of electronic waste responsibly and earn rewards.
+        </p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="{% url 'submit_ewaste' %}" class="btn btn-light btn-lg px-5 py-3 fw-bold text-success shadow">
+                <i class="bi bi-recycle me-2"></i> Submit E-Waste
+            </a>
+            <a href="{% url 'register_company' %}" class="btn btn-outline-light btn-lg px-4 py-3 fw-bold">
+                <i class="bi bi-building me-2"></i> Register as Corporate Buyer
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

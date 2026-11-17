@@ -1,0 +1,83 @@
+{% extends 'company/base_company.html' %}
+
+{% block title %}Company Profile - EcoMarket{% endblock %}
+
+{% block company_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card border rounded-4 shadow-sm p-4 bg-white">
+            <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold fs-3" style="width: 64px; height: 64px;">
+                    <i class="bi bi-building"></i>
+                </div>
+                <div>
+                    <h4 class="fw-bold text-dark mb-0">{{ profile.company_name }}</h4>
+                    <span class="badge {% if profile.is_verified %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                        {{ profile.get_verification_status_display }}
+                    </span>
+                    <span class="text-muted small ms-2">CIN: {{ profile.registration_number }}</span>
+                </div>
+            </div>
+
+            {% if not profile.is_verified %}
+                <div class="alert alert-warning py-2 small mb-4 rounded-3">
+                    <i class="bi bi-info-circle me-1"></i> Your corporate account is currently under verification. Once approved by our compliance team, you will receive full enterprise purchasing access.
+                </div>
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <h6 class="fw-bold text-primary mb-3">Corporate Registration & Compliance Details</h6>
+                
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Company Legal Name *</label>
+                        {{ form.company_name }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Registration Number / CIN *</label>
+                        {{ form.registration_number }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Business Sector *</label>
+                        {{ form.business_type }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">GSTIN / Tax ID</label>
+                        {{ form.gst_tax_id }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-semibold">Corporate HQ Registered Address *</label>
+                        {{ form.corporate_address }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold">City *</label>
+                        {{ form.city }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold">State *</label>
+                        {{ form.state }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold">Postal / PIN Code *</label>
+                        {{ form.postal_code }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-semibold">Business Description & Materials Needed</label>
+                        {{ form.business_description }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-semibold">Company Official Logo</label>
+                        {{ form.logo }}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-ecom-primary">
+                    <i class="bi bi-save me-1"></i> Save Changes
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

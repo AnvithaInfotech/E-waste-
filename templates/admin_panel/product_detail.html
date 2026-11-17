@@ -1,0 +1,329 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}{{ product.product_name }} - Product Overview & Buyers - Operational Admin{% endblock %}
+{% block breadcrumb_active %}{{ product.product_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-2">
+
+    <!-- Header & Actions -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom">
+        <div>
+            <div class="small text-muted mb-1">
+                <a href="{% url 'admin_recycled_products_list' %}" class="text-decoration-none" style="color: #0d9488;">
+                    <i class="bi bi-arrow-left"></i> Recycled Products Catalog
+                </a> / Overview
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <h2 class="fw-bold text-dark mb-0">{{ product.product_name }}</h2>
+                <span class="badge bg-light text-dark border font-monospace">{{ product.sku }}</span>
+                {% if product.quantity_available > 0 and product.status == 'PUBLISHED' %}
+                    <span class="badge bg-success">In Stock</span>
+                {% elif product.quantity_available == 0 or product.status == 'OUT_OF_STOCK' %}
+                    <span class="badge bg-danger">Out of Stock</span>
+                {% else %}
+                    <span class="badge bg-secondary">{{ product.get_status_display }}</span>
+                {% endif %}
+                <span class="badge bg-light text-dark border">{{ product.category.name }}</span>
+            </div>
+        </div>
+        <div class="mt-3 mt-md-0 d-flex gap-2">
+            <button type="button" class="btn btn-adm-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editStockModal">
+                <i class="bi bi-pencil-square me-1"></i> Edit Stock / Price
+            </button>
+            <a href="{% url 'product_detail' product.slug %}" target="_blank" class="btn btn-outline-secondary btn-sm" title="View in Public Marketplace">
+                <i class="bi bi-box-arrow-up-right me-1"></i> View in Store
+            </a>
+            <form method="POST" action="{% url 'admin_delete_recycled_product' product.id %}" onsubmit="return confirm('Are you sure you want to delete this product?');" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete Product">
+                    <i class="bi bi-trash3-fill"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Essential KPI Metrics -->
+    <div class="row g-3 mb-4">
+        <!-- 1. Quantity Left (In Stock) -->
+        <div class="col-lg-3 col-sm-6">
+            <div class="adm-card adm-card-stat h-100" style="border-left: 4px solid {% if product.quantity_available > 0 %}#10b981{% else %}#ef4444{% endif %} !important;">
+                <span class="text-muted small fw-semibold">Quantity Left in Stock</span>
+                <div class="adm-stat-number {% if product.quantity_available > 0 %}text-success{% else %}text-danger{% endif %} mt-1">
+                    {{ product.quantity_available }}
+                    <span class="fs-6 fw-normal text-muted">{{ product.unit }}</span>
+                </div>
+                <div class="small text-muted mt-1">
+                    {% if product.quantity_available > 0 %}
+                        <span class="text-success fw-semibold"><i class="bi bi-check-circle-fill me-1"></i>Available for Purchase</span>
+                    {% else %}
+                        <span class="text-danger fw-semibold"><i class="bi bi-x-circle-fill me-1"></i>Out of Stock</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Quantity Sold -->
+        <div class="col-lg-3 col-sm-6">
+            <div class="adm-card adm-card-stat h-100" style="border-left: 4px solid #0d9488 !important;">
+                <span class="text-muted small fw-semibold">Total Quantity Sold</span>
+                <div class="adm-stat-number text-dark mt-1">
+                    {{ total_sold }}
+                    <span class="fs-6 fw-normal text-muted">{{ product.unit }}</span>
+                </div>
+                <div class="small text-muted mt-1">
+                    Across <strong>{{ total_orders_count }}</strong> order(s)
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Unit Selling Price -->
+        <div class="col-lg-3 col-sm-6">
+            <div class="adm-card adm-card-stat h-100" style="border-left: 4px solid #6366f1 !important;">
+                <span class="text-muted small fw-semibold">Unit Selling Price</span>
+                <div class="adm-stat-number text-dark mt-1">
+                    ₹{{ product.effective_price }}
+                    <span class="fs-6 fw-normal text-muted">/ {{ product.unit }}</span>
+                </div>
+                <div class="small text-muted mt-1">
+                    {% if product.discount_price and product.discount_price < product.price %}
+                        <span class="text-decoration-line-through text-muted me-1">₹{{ product.price }}</span> (Discounted)
+                    {% else %}
+                        Standard Price
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Total Sales Revenue -->
+        <div class="col-lg-3 col-sm-6">
+            <div class="adm-card adm-card-stat h-100" style="border-left: 4px solid #3b82f6 !important;">
+                <span class="text-muted small fw-semibold">Total Revenue Generated</span>
+                <div class="adm-stat-number text-primary mt-1">
+                    ₹{{ total_revenue|floatformat:2 }}
+                </div>
+                <div class="small text-muted mt-1">
+                    From <strong>{{ distinct_buyers_count }}</strong> customer(s)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Summary Card -->
+    <div class="adm-card p-3 mb-4">
+        <div class="row align-items-center g-3">
+            <div class="col-auto">
+                {% if product.primary_image %}
+                    <img src="{{ product.primary_image.url }}" alt="{{ product.product_name }}" class="rounded-3 border" style="width: 70px; height: 70px; object-fit: cover;">
+                {% else %}
+                    <div class="bg-light rounded-3 border d-flex align-items-center justify-content-center text-muted" style="width: 70px; height: 70px;">
+                        <i class="bi bi-box fs-3"></i>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col">
+                <div class="fw-bold text-dark fs-6">{{ product.product_name }}</div>
+                <div class="small text-muted mt-1">
+                    <span class="me-3"><strong class="text-dark">Material:</strong> {{ product.material_type }}</span>
+                    <span class="me-3"><strong class="text-dark">Condition:</strong> {{ product.get_product_condition_display }}</span>
+                    {% if product.recycling_record and product.recycling_record.submission %}
+                        <span><strong class="text-dark">Origin E-Waste:</strong> {{ product.recycling_record.submission.waste_name }} ({{ product.recycling_record.submission.tracking_id }})</span>
+                    {% endif %}
+                </div>
+                {% if product.description %}
+                    <p class="small text-secondary mb-0 mt-1 text-truncate" style="max-width: 800px;">{{ product.description }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Purchase History ("Who all purchased this product") -->
+    <div class="adm-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h5 class="fw-bold text-dark mb-0">
+                    <i class="bi bi-people-fill text-primary me-2"></i>Customers Who Purchased This Product
+                </h5>
+                <small class="text-muted">Purchase orders, buyer details, quantities, and delivery statuses</small>
+            </div>
+            <span class="badge bg-light text-dark border">{{ order_items.count }} Order(s)</span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small text-uppercase">
+                    <tr>
+                        <th>Buyer Name</th>
+                        <th>Account Type</th>
+                        <th>Order #</th>
+                        <th>Date</th>
+                        <th>Qty Purchased</th>
+                        <th>Total Paid</th>
+                        <th>Payment Status</th>
+                        <th>Fulfillment Status</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order_items %}
+                        <tr>
+                            <!-- Buyer Name -->
+                            <td>
+                                <div class="fw-bold text-dark">{{ item.order.company_name }}</div>
+                                <div class="small text-muted">{{ item.order.contact_email|default:item.order.company.email }}</div>
+                            </td>
+
+                            <!-- Account Type -->
+                            <td>
+                                {% if item.order.company.role == 'COMPANY' %}
+                                    <span class="badge bg-primary-subtle text-primary border">Corporate Buyer</span>
+                                {% elif item.order.company.role == 'USER' %}
+                                    <span class="badge bg-success-subtle text-success border">Citizen User</span>
+                                {% else %}
+                                    <span class="badge bg-light text-dark border">{{ item.order.company.get_role_display }}</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Order ID -->
+                            <td>
+                                <a href="{% url 'admin_order_detail' item.order.id %}" class="font-monospace fw-bold text-decoration-none" style="color: #0d9488;">
+                                    {{ item.order.order_number }}
+                                </a>
+                            </td>
+
+                            <!-- Date -->
+                            <td class="small text-muted">
+                                {{ item.order.created_at|date:"M d, Y" }}
+                            </td>
+
+                            <!-- Quantity -->
+                            <td>
+                                <span class="fw-bold text-dark fs-6">{{ item.quantity }}</span>
+                                <small class="text-muted">{{ product.unit }}</small>
+                            </td>
+
+                            <!-- Total -->
+                            <td class="fw-bold text-dark">
+                                ₹{{ item.total_price }}
+                            </td>
+
+                            <!-- Payment -->
+                            <td>
+                                {% if item.order.payment_status == 'PAID' %}
+                                    <span class="badge bg-success">Paid</span>
+                                {% elif item.order.payment_status == 'PENDING' %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% else %}
+                                    <span class="badge bg-danger">{{ item.order.payment_status }}</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Fulfillment -->
+                            <td>
+                                {% if item.order.order_status == 'DELIVERED' or item.order.order_status == 'COMPLETED' %}
+                                    <span class="badge bg-success">Delivered</span>
+                                {% elif item.order.order_status == 'SHIPPED' %}
+                                    <span class="badge bg-info text-dark">In Transit</span>
+                                {% elif item.order.order_status == 'CONFIRMED' or item.order.order_status == 'PROCESSING' or item.order.order_status == 'PACKED' %}
+                                    <span class="badge bg-warning text-dark">{{ item.order.get_order_status_display }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ item.order.get_order_status_display }}</span>
+                                {% endif %}
+
+                                {% if item.order.assigned_collector %}
+                                    <div class="small text-muted" style="font-size: 0.72rem;">
+                                        <i class="bi bi-truck me-1"></i>{{ item.order.assigned_collector.get_full_name|default:item.order.assigned_collector.username }}
+                                    </div>
+                                {% endif %}
+                            </td>
+
+                            <!-- Action -->
+                            <td class="text-end">
+                                <a href="{% url 'admin_order_detail' item.order.id %}" class="btn btn-sm btn-outline-primary" title="View Order Fulfillment">
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-2 text-muted"></i>
+                                <h6 class="fw-bold mt-2 mb-1">No Purchases Recorded Yet</h6>
+                                <p class="small text-muted mb-0">This product is in stock (<strong>{{ product.quantity_available }} {{ product.unit }}</strong> available) and ready for purchase in the marketplace.</p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- Minimal Edit Stock & Price Modal -->
+<div class="modal fade" id="editStockModal" tabindex="-1" aria-labelledby="editStockModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title fw-bold" id="editStockModalLabel">
+                    <i class="bi bi-pencil-square text-primary me-2"></i>Update Stock & Pricing
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Product Title *</label>
+                        {{ form.product_name }}
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">Stock Quantity Left *</label>
+                            {{ form.quantity_available }}
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">Unit *</label>
+                            {{ form.unit }}
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">Unit Price (₹) *</label>
+                            {{ form.price }}
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">Discount Price (₹)</label>
+                            {{ form.discount_price }}
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">Listing Status *</label>
+                            {{ form.status }}
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">Category *</label>
+                            {{ form.category }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Description</label>
+                        {{ form.description }}
+                    </div>
+                    <div class="form-check form-switch">
+                        {{ form.is_featured }}
+                        <label class="form-check-label small fw-semibold" for="{{ form.is_featured.id_for_label }}">
+                            Featured on Marketplace
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-adm-primary btn-sm px-3">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

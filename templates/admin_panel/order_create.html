@@ -1,0 +1,356 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}Place Order for Company - Operational Admin{% endblock %}
+{% block breadcrumb_active %}Place Corporate Order{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom">
+        <div>
+            <div class="small text-muted mb-1">
+                <a href="{% url 'admin_order_list' %}" class="text-decoration-none" style="color: #0d9488;"><i class="bi bi-arrow-left"></i> Corporate Orders</a> / New Order
+            </div>
+            <h2 class="fw-bold text-dark mb-0">Place Order for Company 📝</h2>
+            <p class="text-muted small mb-0">Generate a direct purchase order for registered companies and assign a local delivery collector.</p>
+        </div>
+        <div class="mt-3 mt-md-0">
+            <a href="{% url 'admin_order_list' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-x-circle me-1"></i> Cancel
+            </a>
+        </div>
+    </div>
+
+    {% if form.errors %}
+        <div class="alert alert-danger shadow-sm rounded-4 mb-4 p-3">
+            <h6 class="fw-bold mb-2"><i class="bi bi-exclamation-triangle-fill me-2"></i>Please correct the following errors:</h6>
+            <ul class="mb-0 small">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <form method="POST" id="adminOrderForm">
+        {% csrf_token %}
+
+        <div class="row g-4">
+            <!-- Left Column: Form Steps -->
+            <div class="col-lg-8">
+                <!-- 1. Select Purchasing Company -->
+                <div class="adm-card mb-4">
+                    <h5 class="fw-bold text-dark mb-3">
+                        <i class="bi bi-building text-primary me-2"></i>1. Select Purchasing Company
+                    </h5>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Registered Company Account *</label>
+                        {{ form.company }}
+                        <div class="form-text small">Select registered corporate buyer to automatically load their company details and address.</div>
+                    </div>
+
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Company Name *</label>
+                            {{ form.company_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">GSTIN / Tax ID</label>
+                            {{ form.gst_tax_id }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Authorized Officer *</label>
+                            {{ form.contact_person }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Phone Number *</label>
+                            {{ form.contact_phone }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Business Email *</label>
+                            {{ form.contact_email }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Select Recycled Product & Quantity -->
+                <div class="adm-card mb-4">
+                    <h5 class="fw-bold text-dark mb-3">
+                        <i class="bi bi-box-seam text-success me-2"></i>2. Select Recycled Product & Quantity
+                    </h5>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Recycled Product / Secondary Material *</label>
+                        {{ form.product }}
+                    </div>
+
+                    <!-- Live Stock Alert Banner -->
+                    <div id="stockAlertBox" class="alert alert-danger py-2 px-3 mb-3 small d-none rounded-3">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <span id="stockAlertText"></span>
+                    </div>
+
+                    <!-- Selected Product Details Card -->
+                    <div id="productInfoCard" class="p-3 bg-light rounded-3 border mb-3 d-none">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <span class="badge bg-primary me-1" id="prodConditionBadge">-</span>
+                                <span class="font-monospace small text-muted" id="prodSku">-</span>
+                            </div>
+                            <div class="text-end">
+                                <span class="small text-muted d-block">Available In Stock:</span>
+                                <span class="fw-bold text-success" id="prodStockCount">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Order Quantity *</label>
+                            {{ form.quantity }}
+                        </div>
+                        <div class="col-md-8">
+                            <div class="small text-muted mt-md-4">
+                                <span id="quantityHelpText">Enter the number of units/kg to allocate for this purchase order.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Delivery & Invoicing Addresses -->
+                <div class="adm-card mb-4">
+                    <h5 class="fw-bold text-dark mb-3">
+                        <i class="bi bi-geo-alt text-danger me-2"></i>3. Delivery & Invoicing Addresses
+                    </h5>
+
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Billing Street Address *</label>
+                            {{ form.billing_address }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Delivery Warehouse / Shipping Address *</label>
+                            {{ form.shipping_address }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">City *</label>
+                            {{ form.city }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">State *</label>
+                            {{ form.state }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Country *</label>
+                            {{ form.country }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Postal / PIN Code *</label>
+                            {{ form.postal_code }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Payment, Collector Assignment & Logistics -->
+                <div class="adm-card">
+                    <h5 class="fw-bold text-dark mb-3">
+                        <i class="bi bi-truck text-warning me-2"></i>4. Payment, Logistics & Collector Assignment
+                    </h5>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Payment Settlement Method *</label>
+                            {{ form.payment_method }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Payment Status *</label>
+                            {{ form.payment_status }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Initial Order Status *</label>
+                            {{ form.order_status }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Assign Local Collector for Delivery</label>
+                            {{ form.assigned_collector }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Internal Notes / Logistics Remarks</label>
+                            {{ form.admin_notes }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Live Summary & Action -->
+            <div class="col-lg-4">
+                <div class="adm-card sticky-top" style="top: 80px;">
+                    <h5 class="fw-bold text-dark mb-3">Order Financial Summary 💳</h5>
+
+                    <div class="p-3 bg-light rounded-3 mb-3 border">
+                        <div class="small text-muted mb-1">Selected Item:</div>
+                        <div class="fw-bold text-dark text-truncate" id="summaryProductName">No product selected</div>
+                        <div class="d-flex justify-content-between small text-muted mt-1">
+                            <span>Unit Rate:</span>
+                            <span class="fw-semibold" id="summaryUnitPrice">₹0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>Quantity:</span>
+                            <span class="fw-semibold" id="summaryQty">1</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <span class="text-muted">Subtotal:</span>
+                        <span class="fw-semibold" id="summarySubtotal">₹0.00</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <span class="text-muted">18% GST (ITC Eligible):</span>
+                        <span class="fw-semibold" id="summaryTax">₹0.00</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <span class="text-muted">Shipping & Freight:</span>
+                        <span class="fw-semibold" id="summaryShipping">₹0.00</span>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <div class="d-flex justify-content-between fw-bold fs-5 mb-4">
+                        <span>Grand Total:</span>
+                        <span class="text-success" id="summaryTotal">₹0.00</span>
+                    </div>
+
+                    <button type="submit" id="submitOrderBtn" class="btn btn-adm-primary btn-lg w-100 fw-bold shadow">
+                        <i class="bi bi-check2-circle me-1"></i> Create & Place Order
+                    </button>
+
+                    <div class="text-center mt-3 small text-muted">
+                        <i class="bi bi-shield-check text-success me-1"></i> Inventory will be deducted & buyer notified automatically.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Dynamic Autofill and Calculation Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const companiesData = {{ companies_json|safe }};
+    const productsData = {{ products_json|safe }};
+
+    const companySelect = document.getElementById('id_company_select');
+    const productSelect = document.getElementById('id_product_select');
+    const quantityInput = document.getElementById('id_quantity_input');
+    const submitBtn = document.getElementById('submitOrderBtn');
+
+    const stockAlertBox = document.getElementById('stockAlertBox');
+    const stockAlertText = document.getElementById('stockAlertText');
+    const productInfoCard = document.getElementById('productInfoCard');
+    const prodConditionBadge = document.getElementById('prodConditionBadge');
+    const prodSku = document.getElementById('prodSku');
+    const prodStockCount = document.getElementById('prodStockCount');
+
+    // Summary elements
+    const summaryProductName = document.getElementById('summaryProductName');
+    const summaryUnitPrice = document.getElementById('summaryUnitPrice');
+    const summaryQty = document.getElementById('summaryQty');
+    const summarySubtotal = document.getElementById('summarySubtotal');
+    const summaryTax = document.getElementById('summaryTax');
+    const summaryShipping = document.getElementById('summaryShipping');
+    const summaryTotal = document.getElementById('summaryTotal');
+
+    // Auto-fill company details
+    companySelect.addEventListener('change', function() {
+        const compId = this.value;
+        if (compId && companiesData[compId]) {
+            const data = companiesData[compId];
+            document.getElementById('id_company_name').value = data.company_name || '';
+            document.getElementById('id_contact_person').value = data.contact_person || '';
+            document.getElementById('id_contact_phone').value = data.contact_phone || '';
+            document.getElementById('id_contact_email').value = data.contact_email || '';
+            document.getElementById('id_gst_tax_id').value = data.gst_tax_id || '';
+            document.getElementById('id_billing_address').value = data.billing_address || '';
+            document.getElementById('id_shipping_address').value = data.shipping_address || '';
+            document.getElementById('id_city').value = data.city || '';
+            document.getElementById('id_state').value = data.state || '';
+            document.getElementById('id_country').value = data.country || 'India';
+            document.getElementById('id_postal_code').value = data.postal_code || '';
+        }
+    });
+
+    // Recalculate totals and stock validation
+    function updateCalculations() {
+        const prodId = productSelect.value;
+        const qty = parseInt(quantityInput.value, 10) || 1;
+
+        if (prodId && productsData[prodId]) {
+            const prod = productsData[prodId];
+            const maxStock = prod.stock;
+            const unitPrice = prod.price;
+
+            // Update product card info
+            productInfoCard.classList.remove('d-none');
+            prodConditionBadge.textContent = prod.condition;
+            prodSku.textContent = `SKU: ${prod.sku}`;
+            prodStockCount.textContent = `${maxStock} ${prod.unit}`;
+            quantityInput.max = maxStock;
+
+            // Validate stock
+            if (qty > maxStock) {
+                stockAlertBox.classList.remove('d-none');
+                stockAlertText.innerHTML = `<strong>⚠️ Stock Limit Alert:</strong> Only <strong>${maxStock} ${prod.unit}</strong> available in stock! You cannot place order for <strong>${qty} ${prod.unit}</strong>.`;
+                submitBtn.disabled = true;
+            } else if (qty < 1) {
+                stockAlertBox.classList.remove('d-none');
+                stockAlertText.textContent = `Please enter a valid quantity of at least 1 ${prod.unit}.`;
+                submitBtn.disabled = true;
+            } else {
+                stockAlertBox.classList.add('d-none');
+                stockAlertText.textContent = '';
+                submitBtn.disabled = false;
+            }
+
+            // Calculations
+            const subtotal = unitPrice * qty;
+            const tax = Math.round(subtotal * 0.18 * 100) / 100;
+            const shipping = subtotal > 50000 ? 0 : 1500;
+            const grandTotal = subtotal + tax + shipping;
+
+            summaryProductName.textContent = prod.name;
+            summaryUnitPrice.textContent = `₹${unitPrice.toFixed(2)} / ${prod.unit}`;
+            summaryQty.textContent = `${qty} ${prod.unit}`;
+            summarySubtotal.textContent = `₹${subtotal.toFixed(2)}`;
+            summaryTax.textContent = `₹${tax.toFixed(2)}`;
+            summaryShipping.textContent = shipping === 0 ? 'Free Bulk Freight' : `₹${shipping.toFixed(2)}`;
+            summaryTotal.textContent = `₹${grandTotal.toFixed(2)}`;
+        } else {
+            productInfoCard.classList.add('d-none');
+            stockAlertBox.classList.add('d-none');
+            summaryProductName.textContent = 'No product selected';
+            summaryUnitPrice.textContent = '₹0.00';
+            summaryQty.textContent = '1';
+            summarySubtotal.textContent = '₹0.00';
+            summaryTax.textContent = '₹0.00';
+            summaryShipping.textContent = '₹0.00';
+            summaryTotal.textContent = '₹0.00';
+        }
+    }
+
+    productSelect.addEventListener('change', updateCalculations);
+    quantityInput.addEventListener('input', updateCalculations);
+    quantityInput.addEventListener('change', updateCalculations);
+
+    // Run once on load if values present
+    updateCalculations();
+});
+</script>
+{% endblock %}

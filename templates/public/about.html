@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}About EcoCycle - Circular Economy & Recycling Facilities{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-white border-bottom">
+    <div class="container py-4">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-semibold mb-3">Our Mission</span>
+                <h1 class="fw-bold display-5 text-dark mb-3">Closing the Loop on Global Electronic Waste</h1>
+                <p class="lead text-secondary">
+                    EcoCycle is an integrated digital platform that connects households, verified local collectors, accredited recycling facilities, and green manufacturing buyers into one transparent, traceable circular lifecycle.
+                </p>
+                <div class="d-flex gap-3 mt-4">
+                    <a href="{% url 'submit_ewaste' %}" class="btn btn-eco-primary">Submit E-Waste</a>
+                    <a href="{% url 'product_list' %}" class="btn btn-eco-outline">Explore Marketplace</a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card card-eco p-4 border-0 shadow">
+                    <h5 class="fw-bold text-success mb-3"><i class="bi bi-award-fill me-2"></i>Our Guiding Principles</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item px-0 py-3 d-flex gap-3">
+                            <i class="bi bi-shield-lock-fill text-success fs-4"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">Zero-Landfill Commitment</h6>
+                                <p class="small text-muted mb-0">Every gram of collected e-waste is accounted for and recovered without landfill dumping.</p>
+                            </div>
+                        </li>
+                        <li class="list-group-item px-0 py-3 d-flex gap-3">
+                            <i class="bi bi-truck text-success fs-4"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">Empowering Local Collectors</h6>
+                                <p class="small text-muted mb-0">Equipping local logistics collectors with mobile scheduling, fair remuneration, and route tracking.</p>
+                            </div>
+                        </li>
+                        <li class="list-group-item px-0 py-3 d-flex gap-3">
+                            <i class="bi bi-arrow-repeat text-success fs-4"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">Circular B2B Supply Chain</h6>
+                                <p class="small text-muted mb-0">Supplying verified high-purity recycled copper, rare earth elements, and tested refurbished hardware back to industries.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

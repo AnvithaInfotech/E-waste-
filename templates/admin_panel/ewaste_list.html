@@ -1,0 +1,164 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}E-Waste Triage Queue - Operational Admin{% endblock %}
+{% block breadcrumb_active %}E-Waste Submissions{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">E-Waste Submission Records</h2>
+            <p class="text-muted small mb-0">Triage, verify, and assign local collectors for all citizen-submitted electronic waste.</p>
+        </div>
+    </div>
+
+    <!-- Search & Filters -->
+    <div class="adm-card p-3 mb-4">
+        <form method="GET" class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search by ID, Item, User, or City...">
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select">
+                    <option value="ALL">All Statuses</option>
+                    {% for val, label in statuses %}
+                        <option value="{{ val }}" {% if selected_status == val %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="category" class="form-select">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 d-grid">
+                <button type="submit" class="btn btn-adm-primary">
+                    <i class="bi bi-funnel me-1"></i> Filter
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Submissions Table -->
+    <div class="adm-card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small text-uppercase">
+                    <tr>
+                        <th>Request ID</th>
+                        <th>Item Details</th>
+                        <th>User</th>
+                        <th>Quantity & Weight</th>
+                        <th>Location</th>
+                        <th>Submitted</th>
+                        <th>Status</th>
+                        <th>Collector</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in submissions %}
+                        <tr>
+                            <td class="font-monospace fw-bold" style="color: #0d9488;">{{ item.tracking_id }}</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    {% if item.primary_image %}
+                                        <a href="{{ item.primary_image.url }}" target="_blank">
+                                            <img src="{{ item.primary_image.url }}" alt="item" class="rounded border" style="width: 40px; height: 40px; object-fit: cover;">
+                                        </a>
+                                    {% endif %}
+                                    <div>
+                                        <div class="fw-bold text-dark text-truncate" style="max-width: 170px;">{{ item.waste_name }}</div>
+                                        <span class="badge bg-light text-dark border small">{{ item.category.name }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div>{{ item.user.username }}</div>
+                                <a href="tel:{{ item.contact_phone }}" class="small text-muted text-decoration-none">{{ item.contact_phone }}</a>
+                            </td>
+                            <td>
+                                {{ item.quantity }} pcs<br>
+                                <span class="small text-muted">~{{ item.approximate_weight_kg }} kg</span>
+                            </td>
+                            <td class="small text-muted" style="max-width: 140px;">
+                                {{ item.pickup_city }}
+                            </td>
+                            <td class="small text-muted">{{ item.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                {% if item.status == 'SUBMITTED' %}
+                                    <span class="badge bg-secondary">Submitted</span>
+                                {% elif item.status == 'UNDER_VERIFICATION' %}
+                                    <span class="badge bg-warning text-dark">Under Review</span>
+                                {% elif item.status == 'APPROVED' %}
+                                    <span class="badge bg-info text-dark">Approved</span>
+                                {% elif item.status == 'COLLECTOR_ASSIGNED' or item.status == 'ACCEPTED' %}
+                                    <span class="badge bg-warning text-dark">Assigned</span>
+                                {% elif item.status == 'COLLECTED' %}
+                                    <span class="badge bg-primary">Collected</span>
+                                {% elif item.status == 'AT_RECYCLING_CENTER' %}
+                                    <span class="badge bg-primary">At Center</span>
+                                {% elif item.status == 'RECYCLING_IN_PROGRESS' %}
+                                    <span class="badge bg-info text-dark">In Recycling</span>
+                                {% elif item.status == 'RECYCLED' or item.status == 'COMPLETED' %}
+                                    <span class="badge bg-success">Recycled</span>
+                                {% elif item.status == 'REJECTED' %}
+                                    <span class="badge bg-danger">Declined</span>
+                                {% else %}
+                                    <span class="badge bg-light text-dark">{{ item.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="small">
+                                {% if item.collector_assignment %}
+                                    <strong>{{ item.collector_assignment.collector.username }}</strong>
+                                {% else %}
+                                    <span class="text-muted">Unassigned</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end align-items-center gap-1">
+                                    <a href="{% url 'admin_ewaste_verify' item.id %}" class="btn btn-sm btn-outline-secondary" title="View & Verify Details">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <form method="POST" action="{% url 'admin_delete_ewaste_submission' item.id %}" onsubmit="return confirm('Are you sure you want to delete e-waste request \'{{ item.waste_name|escapejs }}\' ({{ item.tracking_id }})?');" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Submission">
+                                            <i class="bi bi-trash3-fill"></i>
+                                        </button>
+                                    </form>
+                                    {% if item.status in 'APPROVED,COLLECTOR_ASSIGNED,PICKUP_SCHEDULED' %}
+                                        <a href="{% url 'admin_assign_collector' item.id %}" class="btn btn-sm btn-outline-warning" title="Assign / Reassign Collector">
+                                            <i class="bi bi-truck"></i> Assign
+                                        </a>
+                                    {% endif %}
+                                    {% if item.status in 'COLLECTED,AT_RECYCLING_CENTER' %}
+                                        <a href="{% url 'admin_recycle_submission' item.id %}" class="btn btn-sm btn-success fw-semibold" title="Recycle and Move to Products Catalog">
+                                            <i class="bi bi-recycle"></i> Recycle
+                                        </a>
+                                    {% endif %}
+                                    {% if item.status == 'RECYCLED' or item.status == 'COMPLETED' %}
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                                            <i class="bi bi-check-all"></i> Recycled
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-1"></i>
+                                <p class="mt-2 mb-0">No e-waste submission records matching your filter.</p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

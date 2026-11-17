@@ -1,0 +1,119 @@
+{% extends 'super_admin/base_super_admin.html' %}
+
+{% block title %}Corporate Buyers & GST Governance - Super Admin{% endblock %}
+{% block breadcrumb_active %}Corporate Verifications{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom border-secondary">
+        <div>
+            <h2 class="fw-bold text-white mb-0"><i class="bi bi-building-check text-primary me-2"></i>Corporate Buyers & Compliance Verification</h2>
+            <p class="text-secondary small mb-0">Review business registration, verify GSTIN certificates, and grant procurement access to secondary materials catalog.</p>
+        </div>
+        <div class="mt-3 mt-md-0">
+            <a href="{% url 'super_admin_dashboard' %}" class="btn btn-sa-glass btn-sm">
+                <i class="bi bi-speedometer2 me-1"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Companies Table -->
+    <div class="sa-card">
+        <div class="table-responsive">
+            <table class="sa-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Company Details</th>
+                        <th>Business Type</th>
+                        <th>Tax ID / CIN</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th class="text-end">Verification Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for comp in companies %}
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-white">{{ comp.company_name }}</div>
+                                <span class="small text-muted">{{ comp.user.email }} | {{ comp.user.phone }}</span>
+                            </td>
+                            <td><span class="badge bg-dark border border-secondary text-light">{{ comp.get_business_type_display }}</span></td>
+                            <td>
+                                <div class="text-warning"><strong>GST:</strong> {{ comp.gst_tax_id|default:"Pending" }}</div>
+                                <div class="small text-muted font-monospace">CIN: {{ comp.registration_number }}</div>
+                            </td>
+                            <td class="small text-secondary">
+                                {{ comp.city }}, {{ comp.state }} ({{ comp.country }})
+                            </td>
+                            <td>
+                                {% if comp.verification_status == 'VERIFIED' %}
+                                    <span class="badge bg-success"><i class="bi bi-patch-check-fill me-1"></i>Verified</span>
+                                {% elif comp.verification_status == 'PENDING' %}
+                                    <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>Pending</span>
+                                {% elif comp.verification_status == 'REJECTED' %}
+                                    <span class="badge bg-danger">Rejected</span>
+                                {% elif comp.verification_status == 'SUSPENDED' %}
+                                    <span class="badge bg-secondary">Suspended</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <button type="button" class="btn btn-sm btn-sa-primary" data-bs-toggle="modal" data-bs-target="#verifyModal{{ comp.id }}">
+                                    <i class="bi bi-shield-check me-1"></i> Manage
+                                </button>
+
+                                <!-- Verification Modal (Dark Executive) -->
+                                <div class="modal fade" id="verifyModal{{ comp.id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog text-start">
+                                        <div class="modal-content" style="background: #111827; color: #ffffff; border: 1px solid #374151;">
+                                            <div class="modal-header border-secondary">
+                                                <h5 class="modal-title fw-bold text-white">Verify {{ comp.company_name }}</h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <form method="POST">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="company_id" value="{{ comp.id }}">
+                                                
+                                                <div class="modal-body">
+                                                    <div class="p-3 rounded-3 small mb-3 border border-secondary" style="background: #1f2937;">
+                                                        <strong class="text-white">HQ Address:</strong> <span class="text-secondary">{{ comp.corporate_address }}</span><br>
+                                                        <strong class="text-white">Description:</strong> <span class="text-secondary">{{ comp.business_description|default:"No description provided." }}</span>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label small text-secondary fw-semibold">Update Status</label>
+                                                        <select name="status" class="form-select sa-form-control">
+                                                            <option value="VERIFIED" {% if comp.verification_status == 'VERIFIED' %}selected{% endif %}>Verified & Approved</option>
+                                                            <option value="PENDING" {% if comp.verification_status == 'PENDING' %}selected{% endif %}>Pending Verification</option>
+                                                            <option value="REJECTED" {% if comp.verification_status == 'REJECTED' %}selected{% endif %}>Rejected</option>
+                                                            <option value="SUSPENDED" {% if comp.verification_status == 'SUSPENDED' %}selected{% endif %}>Suspended</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label small text-secondary fw-semibold">Remarks / Rejection Reason</label>
+                                                        <textarea name="rejection_reason" class="form-control sa-form-control" rows="2" placeholder="Optional notes sent to company">{{ comp.rejection_reason|default:'' }}</textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer border-secondary">
+                                                    <button type="button" class="btn btn-sa-glass btn-sm" data-bs-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-sa-primary btn-sm">Save Status</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">No company accounts registered yet.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

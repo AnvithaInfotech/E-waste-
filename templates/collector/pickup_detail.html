@@ -1,0 +1,170 @@
+{% extends 'collector/base_collector.html' %}
+
+{% block title %}Execute Pickup - {{ submission.tracking_id }}{% endblock %}
+
+{% block content %}
+<div class="container py-2">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom">
+        <div>
+            <div class="small text-muted mb-1">
+                <a href="{% url 'collector_pickups' %}" class="text-decoration-none fw-bold" style="color: #ea580c;"><i class="bi bi-arrow-left"></i> Assigned Pickups</a> / Job Execution
+            </div>
+            <h2 class="fw-bold text-dark mb-0">
+                Pickup Execution: <span style="color: #ea580c;">{{ submission.tracking_id }}</span>
+                <span class="badge bg-warning text-dark fs-6 ms-2">{{ assignment.get_status_display }}</span>
+            </h2>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Column: Item & Client Details -->
+        <div class="col-lg-6">
+            <div class="col-pickup-card p-4 mb-4">
+                <h5 class="fw-bold text-dark mb-3">Client & Location Information</h5>
+                
+                <div class="p-3 bg-light rounded-3 mb-3">
+                    <div class="fw-bold text-dark fs-5">{{ submission.user.get_full_name|default:submission.user.username }}</div>
+                    <div class="text-muted small mb-2">Registered Eco-Disposer</div>
+                    
+                    <a href="tel:{{ submission.contact_phone }}" class="btn btn-outline-success btn-sm me-2">
+                        <i class="bi bi-telephone-fill me-1"></i> {{ submission.contact_phone }}
+                    </a>
+                    <a href="https://maps.google.com/?q={{ submission.pickup_address|urlencode }}+{{ submission.pickup_city|urlencode }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-geo-alt-fill text-danger me-1"></i> Google Maps
+                    </a>
+                </div>
+
+                <p class="small text-dark mb-2">
+                    <strong>Pickup Address:</strong><br>
+                    {{ submission.pickup_address }}<br>
+                    {{ submission.pickup_city }}, {{ submission.pickup_state }} - {{ submission.pickup_pincode }}
+                </p>
+
+                <p class="small text-dark mb-2">
+                    <strong>Scheduled Slot:</strong> {{ assignment.scheduled_date|default:submission.preferred_date }} ({{ assignment.scheduled_slot|default:"Standard" }})
+                </p>
+
+                {% if submission.additional_notes %}
+                    <p class="small text-muted bg-light p-2 rounded mb-0">
+                        <strong>Client Landmark / Notes:</strong> {{ submission.additional_notes }}
+                    </p>
+                {% endif %}
+            </div>
+
+            <div class="col-pickup-card p-4">
+                <h5 class="fw-bold text-dark mb-3">Item Declared Information</h5>
+                
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    {% if submission.primary_image %}
+                        <img src="{{ submission.primary_image.url }}" alt="Item" class="rounded border" style="width: 70px; height: 70px; object-fit: cover;">
+                    {% endif %}
+                    <div>
+                        <h6 class="fw-bold text-dark mb-0">{{ submission.waste_name }}</h6>
+                        <span class="badge bg-light text-dark border">{{ submission.category.name }}</span>
+                    </div>
+                </div>
+
+                <div class="row g-2 small">
+                    <div class="col-6"><strong>Declared Qty:</strong> {{ submission.quantity }} pcs</div>
+                    <div class="col-6"><strong>Estimated Weight:</strong> {{ submission.approximate_weight_kg }} kg</div>
+                    <div class="col-6"><strong>Declared Condition:</strong> {{ submission.get_condition_display }}</div>
+                    <div class="col-6"><strong>Submission ID:</strong> {{ submission.tracking_id }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Workflow Action Forms -->
+        <div class="col-lg-6">
+            <div class="col-pickup-card p-4">
+                <h5 class="fw-bold mb-3" style="color: #ea580c;"><i class="bi bi-lightning-charge-fill me-2"></i>Pickup Workflow Action</h5>
+
+                <!-- State 1: Assigned -> Accept -->
+                {% if assignment.status == 'ASSIGNED' %}
+                    <div class="alert alert-info small mb-3">
+                        <i class="bi bi-info-circle me-1"></i> You have received this pickup assignment. Please confirm and accept this job.
+                    </div>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="ACCEPT">
+                        <button type="submit" class="btn btn-col-primary w-100 py-2 fw-bold">
+                            <i class="bi bi-check2-circle me-1"></i> Accept Pickup Assignment
+                        </button>
+                    </form>
+
+                <!-- State 2: Accepted -> Start Journey (On The Way) -->
+                {% elif assignment.status == 'ACCEPTED' %}
+                    <div class="alert alert-warning small mb-3">
+                        <i class="bi bi-truck me-1"></i> Assignment accepted. When you begin travelling to the client location, click below to notify the client.
+                    </div>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="ON_THE_WAY">
+                        <button type="submit" class="btn btn-warning w-100 py-2 fw-bold text-dark">
+                            <i class="bi bi-navigation me-1"></i> Start Trip (Mark "On The Way")
+                        </button>
+                    </form>
+
+                <!-- State 3: On The Way -> Verify & Complete Pickup -->
+                {% elif assignment.status == 'ON_THE_WAY' %}
+                    <div class="alert alert-success small mb-3">
+                        <i class="bi bi-geo-alt me-1"></i> You are on route. Upon arrival, inspect the items, weigh on your scale, take a photo proof, and confirm pickup.
+                    </div>
+
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="COMPLETE_PICKUP">
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Scale-Verified Weight (kg) *</label>
+                            {{ form.verified_weight_kg }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Upload Pickup Proof / Receipt Photo *</label>
+                            {{ form.proof_image }}
+                            <div class="form-text small">Take photo of item loaded in vehicle / sealed eco-bag.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Collector Remarks & Condition Notes</label>
+                            {{ form.collector_remarks }}
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100 py-2 fw-bold">
+                            <i class="bi bi-camera me-1"></i> Verify & Confirm Doorstep Pickup
+                        </button>
+                    </form>
+
+                <!-- State 4: Picked Up -> Deliver to Center -->
+                {% elif assignment.status == 'PICKED_UP' %}
+                    <div class="alert alert-primary small mb-3">
+                        <i class="bi bi-box-seam me-1"></i> Item successfully collected! Now deliver it to the Central Recycling Facility.
+                    </div>
+
+                    <div class="p-3 bg-light rounded-3 mb-3 small">
+                        <strong>Verified Weight:</strong> {{ pickup_record.verified_weight_kg|default:submission.approximate_weight_kg }} kg<br>
+                        <strong>Collected At:</strong> {{ pickup_record.collected_at|date:"M d, Y - H:i" }}
+                    </div>
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="DELIVER_TO_CENTER">
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                            <i class="bi bi-building-check me-1"></i> Mark Delivered to Recycling Facility
+                        </button>
+                    </form>
+
+                <!-- State 5: Delivered -->
+                {% elif assignment.status == 'DELIVERED' %}
+                    <div class="alert alert-success p-3 text-center mb-0">
+                        <i class="bi bi-check-circle-fill text-success fs-1 mb-2 d-block"></i>
+                        <h6 class="fw-bold mb-1">Delivered to Central Recovery Center</h6>
+                        <p class="small text-muted mb-0">Delivered on {{ pickup_record.delivered_at|date:"M d, Y - H:i" }}. Thank you for your contribution to zero-landfill!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

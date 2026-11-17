@@ -1,0 +1,103 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}{% if is_edit %}Update Recycling Run{% else %}New Recycling Run{% endif %} - Operational Admin{% endblock %}
+{% block breadcrumb_active %}{% if is_edit %}Edit Batch: {{ record.batch_code }}{% else %}New Processing Run{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
+                <div>
+                    <div class="small text-muted mb-1">
+                        <a href="{% url 'admin_recycling_list' %}" class="text-decoration-none" style="color: #0d9488;"><i class="bi bi-arrow-left"></i> Recycling Batches</a> / Management
+                    </div>
+                    <h2 class="fw-bold text-dark mb-0">
+                        {% if is_edit %}Update Batch: {{ record.batch_code }}{% else %}Log New Recycling Process Run{% endif %}
+                    </h2>
+                </div>
+            </div>
+
+            <div class="adm-card p-4 p-md-5">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <h5 class="fw-bold mb-3" style="color: #0d9488;">1. Facility & Input Waste Stream</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Linked E-Waste Submission</label>
+                            {{ form.submission }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Processing Facility Center</label>
+                            {{ form.facility_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Waste Stream / Item Type *</label>
+                            {{ form.waste_type }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Original Weight (kg) *</label>
+                            {{ form.original_weight_kg }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Received Date *</label>
+                            {{ form.received_date }}
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold mb-3 border-top pt-4" style="color: #0d9488;">2. Material Recovery & Methodology</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Recovered Target Material (e.g. Copper, Gold Pins, Silicon) *</label>
+                            {{ form.recovered_material }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Material Category</label>
+                            {{ form.material_category }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Processing Methodology *</label>
+                            {{ form.processing_method }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Recovered Quantity *</label>
+                            {{ form.recovered_quantity }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Unit (kg, g, pcs, tons) *</label>
+                            {{ form.recovered_unit }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Processing Details & Quality Steps</label>
+                            {{ form.processing_description }}
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold mb-3 border-top pt-4" style="color: #0d9488;">3. Batch Progress Status</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Current Recycling Stage *</label>
+                            {{ form.status }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Recycling Completion Date</label>
+                            {{ form.recycling_date }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Additional Facility Notes</label>
+                            {{ form.notes }}
+                        </div>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-adm-primary btn-lg fw-bold">
+                            <i class="bi bi-save me-1"></i> Save Recycling Process Record
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

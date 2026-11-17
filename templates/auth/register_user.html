@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}User Registration - EcoCycle{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7">
+            <div class="card card-eco shadow-lg p-4 p-md-5 border-0">
+                <div class="text-center mb-4">
+                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-semibold mb-2">
+                        <i class="bi bi-person-fill me-1"></i> Citizen Sign Up
+                    </span>
+                    <h3 class="fw-bold text-dark">Join EcoCycle</h3>
+                    <p class="text-muted small">Create your account in seconds. You can provide your pickup address when scheduling your first e-waste collection.</p>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger small p-3 mb-4 rounded-3">
+                            <strong class="d-block mb-2"><i class="bi bi-exclamation-triangle-fill me-1"></i> Please correct the following errors:</strong>
+                            <ul class="mb-0 ps-3">
+                                {% for field, error_list in form.errors.items %}
+                                    {% for error in error_list %}
+                                        <li><strong>{% if field != '__all__' %}{{ field|title }}: {% endif %}</strong>{{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Username *</label>
+                        {{ form.username }}
+                        {% if form.username.help_text %}
+                            <div class="form-text small text-muted">{{ form.username.help_text }}</div>
+                        {% endif %}
+                        {% if form.username.errors %}
+                            <div class="text-danger small">{{ form.username.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Email Address *</label>
+                        {{ form.email }}
+                        {% if form.email.help_text %}
+                            <div class="form-text small text-muted">{{ form.email.help_text }}</div>
+                        {% endif %}
+                        {% if form.email.errors %}
+                            <div class="text-danger small">{{ form.email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Password *</label>
+                        {{ form.password }}
+                        {% if form.password.help_text %}
+                            <div class="form-text small text-muted">{{ form.password.help_text }}</div>
+                        {% endif %}
+                        {% if form.password.errors %}
+                            <div class="text-danger small">{{ form.password.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-semibold">Confirm Password *</label>
+                        {{ form.confirm_password }}
+                        {% if form.confirm_password.help_text %}
+                            <div class="form-text small text-muted">{{ form.confirm_password.help_text }}</div>
+                        {% endif %}
+                        {% if form.confirm_password.errors %}
+                            <div class="text-danger small">{{ form.confirm_password.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-eco-primary btn-lg fw-bold shadow-sm">
+                            <i class="bi bi-person-plus-fill me-2"></i> Create Account
+                        </button>
+                    </div>
+
+                    <div class="text-center">
+                        <span class="small text-muted">Already have an account? </span>
+                        <a href="{% url 'login' %}" class="small fw-semibold text-success">Sign in here</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,176 @@
+{% extends 'marketplace/base_marketplace.html' %}
+
+{% block title %}Checkout - EcoMarket{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom">
+        <div>
+            <div class="small text-muted mb-1">
+                <a href="{% url 'cart' %}" class="text-decoration-none text-primary"><i class="bi bi-arrow-left"></i> Cart</a> / Checkout
+            </div>
+            <h2 class="fw-bold text-dark mb-0">Secure Checkout 💳</h2>
+        </div>
+    </div>
+
+    <!-- Stepper -->
+    <div class="ecom-stepper d-none d-md-flex">
+        <div class="ecom-step-item completed">
+            <div class="ecom-step-circle"><i class="bi bi-check2"></i></div>
+            <div class="small fw-semibold text-muted">Cart Review</div>
+        </div>
+        <div class="ecom-step-item active">
+            <div class="ecom-step-circle">2</div>
+            <div class="small fw-bold text-primary">Delivery & Billing</div>
+        </div>
+        <div class="ecom-step-item">
+            <div class="ecom-step-circle">3</div>
+            <div class="small fw-semibold text-muted">Order Confirmation</div>
+        </div>
+    </div>
+
+    {% if form.errors %}
+        <div class="alert alert-danger shadow-sm rounded-4 mb-4 p-3">
+            <h6 class="fw-bold mb-2"><i class="bi bi-exclamation-triangle-fill me-2"></i>Please correct the following errors:</h6>
+            <ul class="mb-0 small">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="row g-4">
+            <!-- Left Column: Company & Delivery Details -->
+            <div class="col-lg-8">
+                <!-- 1. Buyer Information -->
+                <div class="card p-4 border rounded-4 shadow-sm mb-4 bg-white">
+                    <h5 class="fw-bold text-primary mb-3">1. Buyer Information</h5>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Buyer / Company Name *</label>
+                            {{ form.company_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">GST / Tax ID (Optional for individuals)</label>
+                            {{ form.gst_tax_id }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Contact Person Name *</label>
+                            {{ form.contact_person }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Phone Number *</label>
+                            {{ form.contact_phone }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Official Business Email *</label>
+                            {{ form.contact_email }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Addresses -->
+                <div class="card p-4 border rounded-4 shadow-sm mb-4 bg-white">
+                    <h5 class="fw-bold text-primary mb-3">2. Delivery & Invoicing Addresses</h5>
+
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Billing Address *</label>
+                            {{ form.billing_address }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Warehouse / Delivery Shipping Address *</label>
+                            {{ form.shipping_address }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">City *</label>
+                            {{ form.city }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">State *</label>
+                            {{ form.state }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Country *</label>
+                            {{ form.country }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Postal / PIN Code *</label>
+                            {{ form.postal_code }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Payment Method -->
+                <div class="card p-4 border rounded-4 shadow-sm bg-white">
+                    <h5 class="fw-bold text-primary mb-3">3. Payment Settlement Method</h5>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Select Payment Option *</label>
+                        {{ form.payment_method }}
+                    </div>
+
+                    <div class="p-3 bg-light rounded-3 small text-muted">
+                        <i class="bi bi-shield-check text-success me-1"></i> All orders include an official Tax Invoice (GST compliant) and Zero-Landfill Origin Certificate.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Order Summary & Place Order -->
+            <div class="col-lg-4">
+                <div class="card p-4 border rounded-4 shadow-sm sticky-top bg-white" style="top: 80px;">
+                    <h5 class="fw-bold text-dark mb-3">Order Summary ({{ cart.total_items }} Items)</h5>
+
+                    <div class="mb-3" style="max-height: 200px; overflow-y: auto;">
+                        {% for item in items %}
+                            <div class="d-flex justify-content-between align-items-center mb-2 small">
+                                <div class="text-truncate me-2" style="max-width: 180px;">
+                                    <strong>{{ item.quantity }}x</strong> {{ item.product.product_name }}
+                                </div>
+                                <span class="fw-semibold">₹{{ item.total_price }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <hr class="my-2">
+
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <span class="text-muted">Subtotal:</span>
+                        <span>₹{{ cart.subtotal }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <span class="text-muted">18% GST (ITC):</span>
+                        <span>₹{{ cart.tax_amount }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <span class="text-muted">Shipping Fee:</span>
+                        <span>₹{{ cart.shipping_fee }}</span>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <div class="d-flex justify-content-between fw-bold fs-5 mb-4">
+                        <span>Grand Total:</span>
+                        <span class="text-primary">₹{{ cart.grand_total }}</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-ecom-primary btn-lg w-100 fw-bold shadow d-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-shield-lock-fill"></i> Proceed to Secure Payment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,289 @@
+/* ==========================================================================
+   OPERATIONAL ADMIN COMMAND CENTER - ENTERPRISE TEAL & EMERALD THEME
+   ========================================================================== */
+
+:root {
+  --adm-bg-main: #f1f5f9;
+  --adm-bg-surface: #ffffff;
+  --adm-border: #e2e8f0;
+  --adm-border-focus: #0d9488;
+  
+  --adm-sidebar-bg: #0f172a;
+  --adm-sidebar-surface: #1e293b;
+  --adm-sidebar-text: #94a3b8;
+  --adm-sidebar-text-active: #ffffff;
+  
+  --adm-primary: #0d9488;
+  --adm-primary-hover: #0f766e;
+  --adm-primary-light: #ccfbf1;
+  --adm-emerald: #059669;
+  --adm-emerald-light: #d1fae5;
+  --adm-cyan: #06b6d4;
+  --adm-amber: #d97706;
+  --adm-danger: #e11d48;
+  
+  --adm-text-dark: #0f172a;
+  --adm-text-body: #334155;
+  --adm-text-muted: #64748b;
+  
+  --adm-sidebar-width: 260px;
+}
+
+body.admin-panel-body {
+  background-color: var(--adm-bg-main);
+  color: var(--adm-text-body);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* Master Layout Grid */
+.adm-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Enterprise Operations Sidebar */
+.adm-sidebar {
+  width: var(--adm-sidebar-width);
+  background: var(--adm-sidebar-bg);
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1040;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.adm-sidebar-header {
+  padding: 20px 18px 16px;
+  background: #020617;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.adm-brand-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.adm-brand-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0d9488 0%, #059669 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.3rem;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.4);
+}
+
+.adm-brand-title {
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+.adm-brand-badge {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #2dd4bf;
+  font-weight: 700;
+}
+
+/* Operations Shift Status */
+.adm-shift-badge {
+  background: rgba(13, 148, 136, 0.15);
+  border: 1px solid rgba(45, 212, 191, 0.3);
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: #2dd4bf;
+  font-size: 0.72rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+/* Operations Nav */
+.adm-sidebar-nav {
+  flex: 1;
+  padding: 16px 12px;
+  overflow-y: auto;
+}
+
+.adm-nav-heading {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-weight: 700;
+  color: #64748b;
+  padding: 14px 12px 6px;
+}
+
+.adm-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  color: var(--adm-sidebar-text);
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+  margin-bottom: 3px;
+}
+
+.adm-nav-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+}
+
+.adm-nav-link.active {
+  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+}
+
+.adm-nav-icon {
+  font-size: 1.1rem;
+  color: #94a3b8;
+  transition: color 0.2s;
+}
+
+.adm-nav-link:hover .adm-nav-icon,
+.adm-nav-link.active .adm-nav-icon {
+  color: #ffffff;
+}
+
+.adm-badge-counter {
+  margin-left: auto;
+  font-size: 0.72rem;
+  padding: 2px 7px;
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+/* Sidebar Footer */
+.adm-sidebar-footer {
+  padding: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: #090d16;
+}
+
+/* Main Workspace */
+.adm-main-content {
+  margin-left: var(--adm-sidebar-width);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Operational Topbar */
+.adm-topbar {
+  background: #ffffff;
+  border-bottom: 1px solid var(--adm-border);
+  padding: 12px 28px;
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.adm-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--adm-text-muted);
+}
+
+/* Operational Cards & Stats */
+.adm-card {
+  background: #ffffff;
+  border: 1px solid var(--adm-border);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease;
+}
+
+.adm-card:hover {
+  box-shadow: 0 8px 20px rgba(13, 148, 136, 0.08);
+  border-color: #99f6e4;
+  transform: translateY(-2px);
+}
+
+.adm-card-stat {
+  border-left: 4px solid var(--adm-primary);
+}
+
+.adm-stat-number {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--adm-text-dark);
+  line-height: 1.1;
+}
+
+/* Operational Buttons */
+.btn-adm-primary {
+  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 8px 18px;
+  box-shadow: 0 4px 10px rgba(13, 148, 136, 0.25);
+  transition: all 0.2s;
+}
+
+.btn-adm-primary:hover {
+  background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
+  color: #ffffff;
+  box-shadow: 0 6px 14px rgba(13, 148, 136, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-adm-outline {
+  border: 1.5px solid var(--adm-primary);
+  color: var(--adm-primary);
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 7px 16px;
+  background: transparent;
+  transition: all 0.2s;
+}
+
+.btn-adm-outline:hover {
+  background: var(--adm-primary);
+  color: #ffffff;
+}
+
+/* Responsive */
+@media (max-width: 991.98px) {
+  .adm-sidebar {
+    transform: translateX(-100%);
+  }
+  .adm-sidebar.show {
+    transform: translateX(0);
+  }
+  .adm-main-content {
+    margin-left: 0;
+  }
+}

@@ -1,0 +1,158 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}Recycle E-Waste - {{ submission.tracking_id }}{% endblock %}
+{% block breadcrumb_active %}Recycle Item & Publish Product{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom">
+        <div>
+            <div class="small text-muted mb-1">
+                <a href="{% url 'admin_ewaste_list' %}" class="text-decoration-none" style="color: #0d9488;">
+                    <i class="bi bi-arrow-left"></i> E-Waste Submissions
+                </a> / Recycle & Move to Products
+            </div>
+            <h2 class="fw-bold text-dark mb-0">
+                Recycle & Publish: <span style="color: #0d9488;">{{ submission.tracking_id }}</span>
+            </h2>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- 1. Source E-Waste Details -->
+        <div class="col-lg-5">
+            <div class="adm-card h-100">
+                <h5 class="fw-bold text-dark mb-3">Collected E-Waste Item</h5>
+                
+                {% if submission.primary_image %}
+                    <div class="rounded-3 overflow-hidden border mb-3">
+                        <img src="{{ submission.primary_image.url }}" alt="{{ submission.waste_name }}" class="img-fluid w-100" style="max-height: 280px; object-fit: cover;">
+                    </div>
+                {% endif %}
+
+                <h4 class="fw-bold text-dark mb-1">{{ submission.waste_name }}</h4>
+                <div class="mb-3">
+                    <span class="badge bg-success me-1">{{ submission.category.name }}</span>
+                    <span class="badge bg-light text-dark border me-1">Condition: {{ submission.get_condition_display }}</span>
+                    <span class="badge bg-primary me-1">Status: {{ submission.get_status_display }}</span>
+                </div>
+
+                <div class="bg-light p-3 rounded-3 small mb-3">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <span class="text-muted d-block">Quantity:</span>
+                            <strong>{{ submission.quantity }} item(s)</strong>
+                        </div>
+                        <div class="col-6">
+                            <span class="text-muted d-block">Verified Weight:</span>
+                            <strong>~{{ submission.approximate_weight_kg }} kg</strong>
+                        </div>
+                        <div class="col-6">
+                            <span class="text-muted d-block">Original Citizen:</span>
+                            <strong>{{ submission.user.username }}</strong>
+                        </div>
+                        <div class="col-6">
+                            <span class="text-muted d-block">Pickup Location:</span>
+                            <strong>{{ submission.pickup_city }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                {% if submission.description %}
+                    <h6 class="fw-bold small text-muted text-uppercase mb-1">Item Notes</h6>
+                    <p class="text-secondary small bg-light p-2 rounded mb-0">{{ submission.description }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 2. Recycling & Direct Product Publishing Form -->
+        <div class="col-lg-7">
+            <div class="adm-card h-100" style="border-top: 4px solid #059669;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h5 class="fw-bold mb-0 text-success"><i class="bi bi-recycle me-2"></i>Transform into Marketplace Product</h5>
+                        <p class="text-muted small mb-0">Confirm recycling and immediately make product available to corporate buyers.</p>
+                    </div>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-dark">Recycled Product Name *</label>
+                        <input type="text" name="product_name" value="{{ default_name }}" class="form-control form-control-lg fw-semibold" required>
+                    </div>
+
+                    <!-- After-Recycling Photo Upload (Optional) -->
+                    <div class="p-3 bg-light rounded-3 border mb-3">
+                        <label class="form-label fw-bold small text-dark mb-1">
+                            <i class="bi bi-camera text-success me-1"></i> After-Recycling / Refurbished Product Photo (Optional)
+                        </label>
+                        <input type="file" name="product_image" class="form-control" accept="image/*">
+                        <div class="form-text small text-muted">Upload a photo of the refurbished item or refined raw material. If left empty, the citizen's original uploaded e-waste photo will be used automatically.</div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Category *</label>
+                            <select name="category" class="form-select" required>
+                                {% for cat in categories %}
+                                    <option value="{{ cat.id }}" {% if cat.id == submission.category.id %}selected{% endif %}>{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Product Condition / Grade *</label>
+                            <select name="product_condition" class="form-select">
+                                {% for val, label in conditions %}
+                                    <option value="{{ val }}" {% if val == 'REFURBISHED_A' %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small">Available Stock Qty *</label>
+                            <input type="number" step="0.1" name="quantity_available" value="{{ default_qty }}" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small">Stock Unit *</label>
+                            <input type="text" name="unit" value="{{ default_unit }}" class="form-control" placeholder="Units / kg" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small">Selling Price (₹) *</label>
+                            <input type="number" step="0.01" name="price" value="{{ default_price }}" class="form-control fw-bold text-success" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Extracted Material / Type</label>
+                        <input type="text" name="material_type" value="Recovered {{ submission.category.name }} Hardware" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Product Description for Buyers</label>
+                        <textarea name="description" rows="2" class="form-control">Certified high-grade recycled/refurbished {{ submission.waste_name }}. Tested, cleaned, and verified for secondary manufacturing and corporate procurement.</textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold small">Technical Specifications</label>
+                        <textarea name="specifications" rows="2" class="form-control">Source Batch: {{ submission.tracking_id }}&#10;Original Weight: {{ submission.approximate_weight_kg }} kg&#10;Eco-Purity Grade: Enterprise Quality Standard</textarea>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg fw-bold shadow-sm">
+                            <i class="bi bi-check-circle-fill me-2"></i> Confirm Recycling & Move to Products Catalog
+                        </button>
+                        <a href="{% url 'admin_ewaste_list' %}" class="btn btn-light btn-sm text-muted">
+                            Cancel and Return to Submissions
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}Verify E-Waste - {{ submission.tracking_id }}{% endblock %}
+{% block breadcrumb_active %}Triage Decision: {{ submission.tracking_id }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom">
+        <div>
+            <div class="small text-muted mb-1">
+                <a href="{% url 'admin_ewaste_list' %}" class="text-decoration-none" style="color: #0d9488;"><i class="bi bi-arrow-left"></i> E-Waste Submissions</a> / Verification
+            </div>
+            <h2 class="fw-bold text-dark mb-0">
+                Verification Triage: <span style="color: #0d9488;">{{ submission.tracking_id }}</span>
+                <span class="badge bg-light text-dark border fs-6 ms-2">{{ submission.get_status_display }}</span>
+            </h2>
+        </div>
+        <div class="mt-3 mt-md-0">
+            <form method="POST" action="{% url 'admin_delete_ewaste_submission' submission.id %}" onsubmit="return confirm('Are you sure you want to permanently delete this e-waste submission ({{ submission.tracking_id }})?');" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-trash3-fill me-1"></i> Delete Submission
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Item Evidence & Details -->
+        <div class="col-lg-6">
+            <div class="adm-card mb-4">
+                <h5 class="fw-bold text-dark mb-3">Submitted Item Evidence</h5>
+                
+                {% if submission.primary_image %}
+                    <div class="rounded-3 overflow-hidden border mb-3">
+                        <img src="{{ submission.primary_image.url }}" alt="{{ submission.waste_name }}" class="img-fluid w-100" style="max-height: 350px; object-fit: cover;">
+                    </div>
+                {% endif %}
+
+                <h4 class="fw-bold text-dark">{{ submission.waste_name }}</h4>
+                <div class="mb-3">
+                    <span class="badge bg-success me-1">{{ submission.category.name }}</span>
+                    <span class="badge bg-light text-dark border me-1">Condition: {{ submission.get_condition_display }}</span>
+                    <span class="badge bg-light text-dark border">Qty: {{ submission.quantity }} | ~{{ submission.approximate_weight_kg }} kg</span>
+                </div>
+
+                <h6 class="fw-bold small text-muted text-uppercase">Client Description</h6>
+                <p class="text-secondary bg-light p-3 rounded small">{{ submission.description }}</p>
+
+                <h6 class="fw-bold small text-muted text-uppercase">Pickup Location & Client Contact</h6>
+                <div class="p-3 bg-light rounded small">
+                    <strong>User:</strong> {{ submission.user.username }} ({{ submission.user.get_full_name }})<br>
+                    <strong>Phone:</strong> {{ submission.contact_phone }}<br>
+                    <strong>Address:</strong> {{ submission.pickup_address }}, {{ submission.pickup_city }}, {{ submission.pickup_state }} - {{ submission.pickup_pincode }}<br>
+                    <strong>Preferred Slot:</strong> {{ submission.preferred_date }} ({{ submission.get_preferred_time_slot_display }})
+                </div>
+            </div>
+        </div>
+
+        <!-- Verification Actions Form -->
+        <div class="col-lg-6">
+            <div class="adm-card">
+                <h5 class="fw-bold mb-3" style="color: #0d9488;"><i class="bi bi-shield-check me-2"></i>Admin Decision & Award</h5>
+
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-dark">Select Triage Decision *</label>
+                        <div class="d-flex flex-column gap-2 p-3 bg-light rounded-3 border">
+                            {% for radio in form.action %}
+                                <div class="form-check">
+                                    {{ radio.tag }}
+                                    <label class="form-check-label fw-semibold" for="{{ radio.id_for_label }}">
+                                        {{ radio.choice_label }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Eco-Points to Credit User (Upon Approval)</label>
+                        {{ form.reward_points }}
+                        <div class="form-text small">Default 50 points per approved electronic item submission.</div>
+                    </div>
+
+                    <!-- Optional Collector Assignment -->
+                    <div class="p-3 bg-light rounded-3 border mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-bold text-dark mb-0 small"><i class="bi bi-truck text-teal me-1" style="color: #0d9488;"></i> Assign Local Collector (Optional)</label>
+                            <span class="badge bg-secondary-subtle text-secondary small">Optional</span>
+                        </div>
+                        <div class="mb-2">
+                            {{ form.collector }}
+                            <div class="form-text small">Select a local collector now, or leave unassigned to dispatch later.</div>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted">Scheduled Pickup Date</label>
+                                {{ form.scheduled_date }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted">Notes for Collector</label>
+                                {{ form.collector_notes }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Internal Admin Verification Notes</label>
+                        {{ form.admin_notes }}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold small text-danger">Rejection Reason (Sent to User if Declined)</label>
+                        {{ form.rejection_reason }}
+                    </div>
+
+                    <button type="submit" class="btn btn-adm-primary btn-lg w-100 fw-bold">
+                        <i class="bi bi-check2-all me-1"></i> Apply Decision & Save
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

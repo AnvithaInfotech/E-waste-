@@ -1,0 +1,57 @@
+{% extends 'collector/base_collector.html' %}
+
+{% block title %}Collector Settings - EcoCycle{% endblock %}
+
+{% block content %}
+<div class="container py-2">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="col-pickup-card p-4">
+                <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+                    <div class="col-brand-icon" style="width: 60px; height: 60px; font-size: 2rem;">
+                        <i class="bi bi-truck"></i>
+                    </div>
+                    <div>
+                        <h4 class="fw-bold text-dark mb-0">{{ user.get_full_name|default:user.username }}</h4>
+                        <span class="badge bg-warning text-dark">Certified Field Collector</span>
+                        <span class="text-muted small ms-2"><i class="bi bi-star-fill text-warning"></i> {{ profile.rating }} Rating ({{ profile.completed_pickups_count }} Pickups)</span>
+                    </div>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <h6 class="fw-bold text-dark mb-3">Service Territory & Vehicle Settings</h6>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Assigned Service Territory / Zone</label>
+                        {{ form.service_area }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Vehicle Type (e.g. Electric Cargo Van, Light Truck)</label>
+                        {{ form.vehicle_type }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Vehicle License / Registration Number</label>
+                        {{ form.vehicle_number }}
+                    </div>
+
+                    <div class="form-check form-switch mb-4 p-3 bg-light rounded-3">
+                        {{ form.is_available }}
+                        <label class="form-check-label fw-bold text-dark ms-2" for="{{ form.is_available.id_for_label }}">
+                            Available for New Doorstep Assignments (Online / On Duty)
+                        </label>
+                        <div class="small text-muted ms-2">When toggled off, dispatch admins will not route new pickup requests to you.</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-col-primary">
+                        <i class="bi bi-check2-circle me-1"></i> Save Collector Settings
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

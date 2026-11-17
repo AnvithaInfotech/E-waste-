@@ -1,0 +1,276 @@
+{% extends 'collector/base_collector.html' %}
+
+{% block title %}Corporate Delivery #{{ order.order_number }} - EcoCycle Collector{% endblock %}
+
+{% block content %}
+<div class="container py-2">
+    <!-- Breadcrumb & Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom">
+        <div>
+            <div class="small text-muted mb-1">
+                <a href="{% url 'collector_dashboard' %}" class="text-decoration-none fw-bold" style="color: #ea580c;">
+                    <i class="bi bi-arrow-left me-1"></i> Collector Dashboard
+                </a>
+                <span class="mx-1">/</span>
+                <span>Corporate Delivery</span>
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <h2 class="fw-bold text-dark mb-0">Delivery Job: <span style="color: #0284c7;">#{{ order.order_number }}</span></h2>
+                {% if order.order_status == 'DELIVERED' or order.order_status == 'COMPLETED' %}
+                    <span class="badge bg-success fs-6"><i class="bi bi-check-circle-fill me-1"></i> Delivered</span>
+                {% elif order.order_status == 'SHIPPED' %}
+                    <span class="badge bg-warning text-dark fs-6"><i class="bi bi-truck me-1"></i> Out for Delivery</span>
+                {% else %}
+                    <span class="badge bg-info text-dark fs-6">{{ order.get_order_status_display }}</span>
+                {% endif %}
+            </div>
+            <p class="text-muted small mb-0 mt-1">Consignment for <strong>{{ order.company_name }}</strong> &bull; Placed on {{ order.created_at|date:"M d, Y - h:i A" }}</p>
+        </div>
+
+        <div class="mt-3 mt-md-0 d-flex gap-2">
+            <a href="https://maps.google.com/?q={{ order.shipping_address|urlencode }}+{{ order.city|urlencode }}+{{ order.state|urlencode }}+{{ order.postal_code|urlencode }}" target="_blank" class="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm">
+                <i class="bi bi-geo-alt-fill"></i> Open in Google Maps 📍
+            </a>
+            <a href="tel:{{ order.contact_phone }}" class="btn btn-outline-success btn-sm d-flex align-items-center gap-1">
+                <i class="bi bi-telephone-fill"></i> Call Client 📞
+            </a>
+        </div>
+    </div>
+
+    <!-- Progress Timeline -->
+    <div class="col-pickup-card p-4 mb-4">
+        <h6 class="text-uppercase fw-bold text-muted small mb-3">
+            <i class="bi bi-clock-history me-1 text-primary"></i> Live Consignment Status
+        </h6>
+        <div class="row g-2 text-center">
+            {% for stage_code, stage_label, is_done in order_stages %}
+                <div class="col-6 col-md-2">
+                    <div class="p-2 rounded-3 border {% if is_done %}bg-success-subtle border-success text-success fw-bold{% else %}bg-light border-light-subtle text-muted{% endif %}" style="font-size: 0.8rem;">
+                        <i class="bi {% if is_done %}bi-check-circle-fill text-success{% else %}bi-circle text-secondary{% endif %} d-block fs-5 mb-1"></i>
+                        {{ stage_label }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Column: Delivery Destination & Client Contact -->
+        <div class="col-lg-6">
+            <!-- Delivery Destination Location Card -->
+            <div class="col-pickup-card p-4 mb-4" style="border-left: 4px solid #0284c7 !important;">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h5 class="fw-bold text-dark mb-0">
+                        <i class="bi bi-geo-alt-fill text-danger me-2"></i>Destination &amp; Drop-off Point
+                    </h5>
+                    <a href="https://maps.google.com/?q={{ order.shipping_address|urlencode }}+{{ order.city|urlencode }}+{{ order.state|urlencode }}+{{ order.postal_code|urlencode }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-map me-1"></i> Navigate
+                    </a>
+                </div>
+
+                <div class="p-3 bg-light rounded-3 mb-3 border">
+                    <div class="fw-bold text-dark fs-5">{{ order.company_name }}</div>
+                    <div class="text-muted small mb-2"><i class="bi bi-building me-1"></i> Corporate Recipient Account</div>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="tel:{{ order.contact_phone }}" class="btn btn-sm btn-success">
+                            <i class="bi bi-telephone-fill me-1"></i> {{ order.contact_phone }}
+                        </a>
+                        {% if order.contact_email %}
+                            <a href="mailto:{{ order.contact_email }}" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-envelope me-1"></i> {{ order.contact_email }}
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="text-muted small fw-bold text-uppercase d-block">Physical Shipping Address</label>
+                    <div class="p-3 bg-white rounded border fw-semibold text-dark">
+                        <i class="bi bi-pin-map-fill text-danger me-2"></i>{{ order.shipping_address }}<br>
+                        <span class="text-muted ms-4">{{ order.city }}, {{ order.state }} - {{ order.postal_code }}</span>
+                    </div>
+                </div>
+
+                <div class="row g-2 small">
+                    <div class="col-sm-6">
+                        <strong>Authorized Contact:</strong><br>
+                        <span class="text-dark">{{ order.contact_person }}</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <strong>Tracking Number:</strong><br>
+                        <span class="font-monospace text-primary fw-bold">{{ order.tracking_number|default:"N/A" }}</span>
+                    </div>
+                </div>
+
+                {% if order.admin_notes %}
+                    <div class="mt-3 p-2 bg-light rounded small border">
+                        <strong class="text-dark"><i class="bi bi-info-circle me-1 text-primary"></i>Delivery Dispatch Notes:</strong>
+                        <div class="text-muted mt-1" style="white-space: pre-line;">{{ order.admin_notes }}</div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Recycled Products / Consignment Manifest Card -->
+            <div class="col-pickup-card p-4">
+                <h5 class="fw-bold text-dark mb-3">
+                    <i class="bi bi-boxes text-success me-2"></i>Consignment Manifest ({{ items.count }} Items)
+                </h5>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small text-uppercase">
+                            <tr>
+                                <th>Product Details</th>
+                                <th class="text-center">Quantity</th>
+                                <th class="text-end">Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            {% if item.product and item.product.image %}
+                                                <img src="{{ item.product.image.url }}" alt="{{ item.product_name }}" class="rounded border" style="width: 45px; height: 45px; object-fit: cover;">
+                                            {% else %}
+                                                <div class="bg-light rounded border d-flex align-items-center justify-content-center text-muted" style="width: 45px; height: 45px;">
+                                                    <i class="bi bi-box"></i>
+                                                </div>
+                                            {% endif %}
+                                            <div>
+                                                <div class="fw-bold text-dark">{{ item.product_name }}</div>
+                                                <div class="text-muted small font-monospace">SKU: {{ item.sku|default:"N/A" }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-primary-subtle text-primary border px-2 py-1 fw-bold fs-6">
+                                            {{ item.quantity }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end fw-bold text-dark">
+                                        ₹{{ item.total_price }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <th colspan="2" class="text-end text-muted small">Total Consignment Value:</th>
+                                <th class="text-end text-success fs-6">₹{{ order.total_amount }}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Delivery Workflow & Actions -->
+        <div class="col-lg-6">
+            <div class="col-pickup-card p-4 h-100" style="border-left: 4px solid #10b981 !important;">
+                <h5 class="fw-bold mb-3" style="color: #ea580c;">
+                    <i class="bi bi-lightning-charge-fill me-2"></i>Delivery Handover Actions
+                </h5>
+
+                {% if order.order_status == 'DELIVERED' or order.order_status == 'COMPLETED' %}
+                    <!-- Delivered Completion Card -->
+                    <div class="alert alert-success p-4 text-center mb-0 rounded-3">
+                        <i class="bi bi-patch-check-fill text-success" style="font-size: 3rem;"></i>
+                        <h4 class="fw-bold text-success mt-2 mb-1">Package Delivered Successfully!</h4>
+                        <p class="text-muted small mb-3">
+                            This corporate consignment has been handed over to <strong>{{ order.company_name }}</strong>.
+                        </p>
+                        <div class="p-3 bg-white rounded border text-start small">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted">Recipient:</span>
+                                <span class="fw-bold text-dark">{{ order.contact_person }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted">Delivery Address:</span>
+                                <span class="fw-bold text-dark text-end" style="max-width: 250px;">{{ order.shipping_address }}, {{ order.city }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Assigned Collector:</span>
+                                <span class="fw-bold text-success">{{ request.user.get_full_name|default:request.user.username }}</span>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <a href="{% url 'collector_dashboard' %}" class="btn btn-outline-success btn-sm">
+                                <i class="bi bi-arrow-left me-1"></i> Back to Collector Dashboard
+                            </a>
+                        </div>
+                    </div>
+
+                {% elif order.order_status == 'SHIPPED' %}
+                    <!-- Out for Delivery -> Mark Delivered -->
+                    <div class="alert alert-warning mb-4">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <i class="bi bi-truck fs-4 text-warning"></i>
+                            <strong class="text-dark">Order is Out for Delivery!</strong>
+                        </div>
+                        <p class="small text-muted mb-0">
+                            You are in transit to the customer location. Once you reach the destination, hand over the package to <strong>{{ order.contact_person }}</strong> and confirm delivery below.
+                        </p>
+                    </div>
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="MARK_DELIVERED">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small text-dark">
+                                Recipient Confirmation &amp; Collector Handover Notes (Optional)
+                            </label>
+                            <textarea name="delivery_remarks" class="form-control" rows="3" placeholder="e.g., Handed package to Security Gate / Warehouse Manager Mr. Sharma. Verified all items intact."></textarea>
+                            <div class="form-text small">These notes will be recorded in the order audit log and sent to the Operations Admin.</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100 py-3 fw-bold shadow-sm" onclick="return confirm('Confirm that all items have been physically handed over to {{ order.company_name }}?');">
+                            <i class="bi bi-check-circle-fill me-2 fs-5"></i> Confirm Package Delivered to Company ✅
+                        </button>
+                    </form>
+
+                {% else %}
+                    <!-- Packed / Processing -> Start Trip (Out for Delivery) -->
+                    <div class="alert alert-info mb-4">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <i class="bi bi-box-seam fs-4 text-primary"></i>
+                            <strong class="text-dark">Consignment Assigned for Dispatch</strong>
+                        </div>
+                        <p class="small text-muted mb-0">
+                            This corporate order is assigned to you for field delivery. When you load the consignment into your vehicle and leave the center, click <strong>"Start Trip &amp; Mark Out for Delivery"</strong>.
+                        </p>
+                    </div>
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="OUT_FOR_DELIVERY">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small text-dark">
+                                Dispatch Notes / Vehicle Remarks (Optional)
+                            </label>
+                            <textarea name="delivery_remarks" class="form-control" rows="3" placeholder="e.g., Loaded in delivery van #KL-07-2201. Expected arrival in 45 mins."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-col-primary w-100 py-3 fw-bold shadow-sm">
+                            <i class="bi bi-truck me-2 fs-5"></i> Start Trip &amp; Mark Out for Delivery 🚚
+                        </button>
+                    </form>
+                {% endif %}
+
+                <!-- Emergency / Quick Assistance -->
+                <div class="mt-4 pt-3 border-top">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <span class="small text-muted">Need central dispatch assistance?</span>
+                        <a href="{% url 'collector_dashboard' %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-grid me-1"></i> All Jobs
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

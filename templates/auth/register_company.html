@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Corporate Buyer Registration - EcoCycle{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card card-eco shadow-lg p-4 p-md-5 border-0">
+                <div class="text-center mb-4">
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold mb-2">B2B Corporate Account</span>
+                    <h3 class="fw-bold text-dark">Register as a Company Buyer</h3>
+                    <p class="text-muted small">Procure certified high-purity recycled metals, polymers, and refurbished enterprise electronics.</p>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger small p-3 mb-4 rounded-3">
+                            <strong class="d-block mb-2"><i class="bi bi-exclamation-triangle-fill me-1"></i> Please correct the following errors:</strong>
+                            <ul class="mb-0 ps-3">
+                                {% for field, error_list in form.errors.items %}
+                                    {% for error in error_list %}
+                                        <li><strong>{% if field != '__all__' %}{{ field|title }}: {% endif %}</strong>{{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <!-- 1. Business Profile -->
+                    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3">1. Business Profile</h6>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Company Name *</label>
+                            {{ form.company_name }}
+                            {% if form.company_name.errors %}<div class="text-danger small mt-1">{{ form.company_name.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Registration Number / CIN *</label>
+                            {{ form.registration_number }}
+                            {% if form.registration_number.errors %}<div class="text-danger small mt-1">{{ form.registration_number.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Business Type *</label>
+                            {{ form.business_type }}
+                            {% if form.business_type.errors %}<div class="text-danger small mt-1">{{ form.business_type.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">GST / Tax Identification ID</label>
+                            {{ form.gst_tax_id }}
+                            {% if form.gst_tax_id.errors %}<div class="text-danger small mt-1">{{ form.gst_tax_id.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Corporate HQ Address *</label>
+                            {{ form.corporate_address }}
+                            {% if form.corporate_address.errors %}<div class="text-danger small mt-1">{{ form.corporate_address.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">City *</label>
+                            {{ form.city }}
+                            {% if form.city.errors %}<div class="text-danger small mt-1">{{ form.city.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">State *</label>
+                            {{ form.state }}
+                            {% if form.state.errors %}<div class="text-danger small mt-1">{{ form.state.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Country *</label>
+                            {{ form.country }}
+                            {% if form.country.errors %}<div class="text-danger small mt-1">{{ form.country.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Postal / PIN Code *</label>
+                            {{ form.postal_code }}
+                            {% if form.postal_code.errors %}<div class="text-danger small mt-1">{{ form.postal_code.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <!-- 2. Authorized Account Officer & Login -->
+                    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3 mt-4">2. Authorized Account Officer & Login Credentials</h6>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Contact Person Name *</label>
+                            {{ form.contact_person }}
+                            {% if form.contact_person.errors %}<div class="text-danger small mt-1">{{ form.contact_person.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Corporate Phone *</label>
+                            {{ form.phone }}
+                            {% if form.phone.errors %}<div class="text-danger small mt-1">{{ form.phone.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Official Business Email *</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}<div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Portal Username *</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}<div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Password *</label>
+                            {{ form.password }}
+                            {% if form.password.errors %}<div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Confirm Password *</label>
+                            {{ form.confirm_password }}
+                            {% if form.confirm_password.errors %}<div class="text-danger small mt-1">{{ form.confirm_password.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <!-- 3. Business Requirements & Logo -->
+                    <h6 class="fw-bold text-primary border-bottom pb-2 mb-3 mt-4">3. Procurement Needs & Logo</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Business Description / Materials Needed</label>
+                            {{ form.business_description }}
+                            {% if form.business_description.errors %}<div class="text-danger small mt-1">{{ form.business_description.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Company Logo</label>
+                            {{ form.logo }}
+                            {% if form.logo.errors %}<div class="text-danger small mt-1">{{ form.logo.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg fw-bold shadow">
+                            <i class="bi bi-building-check me-2"></i> Register Corporate Account
+                        </button>
+                    </div>
+
+                    <div class="text-center">
+                        <span class="small text-muted">Already registered as a company? </span>
+                        <a href="{% url 'login' %}" class="small fw-semibold text-primary">Log in here</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

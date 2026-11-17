@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}Local Collector Registration - EcoCycle{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card card-eco shadow-lg p-4 p-md-5 border-0">
+                <div class="text-center mb-4">
+                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2 rounded-pill fw-semibold mb-2">
+                        <i class="bi bi-truck me-1"></i> Field Logistics Fleet
+                    </span>
+                    <h3 class="fw-bold text-dark">Register as a Local Collector</h3>
+                    <p class="text-muted small">Join our verified eco-logistics network to handle doorstep e-waste pickups and material transfers.</p>
+                </div>
+
+                <div class="alert alert-info small d-flex align-items-center mb-4 rounded-3 border-0 shadow-sm" style="background: #e0f2fe; color: #0369a1;">
+                    <i class="bi bi-shield-check fs-4 me-3"></i>
+                    <div>
+                        <strong>Super Admin Approval Required:</strong> Once you submit this registration, your application will be verified and approved by the Super Admin before your account can log in.
+                    </div>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger small p-3 mb-4 rounded-3">
+                            <strong class="d-block mb-2"><i class="bi bi-exclamation-triangle-fill me-1"></i> Please correct the following errors:</strong>
+                            <ul class="mb-0 ps-3">
+                                {% for field, error_list in form.errors.items %}
+                                    {% for error in error_list %}
+                                        <li><strong>{% if field != '__all__' %}{{ field|title }}: {% endif %}</strong>{{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <!-- 1. Personal & Contact Details -->
+                    <h6 class="fw-bold text-dark border-bottom pb-2 mb-3"><i class="bi bi-person-badge text-warning me-2"></i>1. Collector Contact & Login Details</h6>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">First Name *</label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}<div class="text-danger small mt-1">{{ form.first_name.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Last Name</label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}<div class="text-danger small mt-1">{{ form.last_name.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Mobile Phone Number *</label>
+                            {{ form.phone }}
+                            {% if form.phone.help_text %}<div class="form-text small text-muted">{{ form.phone.help_text }}</div>{% endif %}
+                            {% if form.phone.errors %}<div class="text-danger small mt-1">{{ form.phone.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Email Address *</label>
+                            {{ form.email }}
+                            {% if form.email.help_text %}<div class="form-text small text-muted">{{ form.email.help_text }}</div>{% endif %}
+                            {% if form.email.errors %}<div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Username *</label>
+                            {{ form.username }}
+                            {% if form.username.help_text %}<div class="form-text small text-muted">{{ form.username.help_text }}</div>{% endif %}
+                            {% if form.username.errors %}<div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Password *</label>
+                            {{ form.password }}
+                            {% if form.password.help_text %}<div class="form-text small text-muted">{{ form.password.help_text }}</div>{% endif %}
+                            {% if form.password.errors %}<div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Confirm Password *</label>
+                            {{ form.confirm_password }}
+                            {% if form.confirm_password.errors %}<div class="text-danger small mt-1">{{ form.confirm_password.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <!-- 2. Logistics & Vehicle Information -->
+                    <h6 class="fw-bold text-dark border-bottom pb-2 mb-3 mt-4"><i class="bi bi-truck text-warning me-2"></i>2. Service Area & Vehicle Fleet</h6>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label small fw-semibold">Service Area / Operating Zone *</label>
+                            {{ form.service_area }}
+                            <div class="form-text small text-muted">Specify regions, districts, or zones you can service for pickups (e.g. North Zone & Cyber Park).</div>
+                            {% if form.service_area.errors %}<div class="text-danger small mt-1">{{ form.service_area.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Vehicle Type *</label>
+                            {{ form.vehicle_type }}
+                            {% if form.vehicle_type.errors %}<div class="text-danger small mt-1">{{ form.vehicle_type.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Vehicle Registration Number</label>
+                            {{ form.vehicle_number }}
+                            {% if form.vehicle_number.errors %}<div class="text-danger small mt-1">{{ form.vehicle_number.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <!-- 3. Base Location -->
+                    <h6 class="fw-bold text-dark border-bottom pb-2 mb-3 mt-4"><i class="bi bi-geo-alt text-warning me-2"></i>3. Base / Depot Address</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Address / Street</label>
+                            {{ form.address }}
+                            {% if form.address.errors %}<div class="text-danger small mt-1">{{ form.address.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">City *</label>
+                            {{ form.city }}
+                            {% if form.city.errors %}<div class="text-danger small mt-1">{{ form.city.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">State *</label>
+                            {{ form.state }}
+                            {% if form.state.errors %}<div class="text-danger small mt-1">{{ form.state.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Postal PIN Code *</label>
+                            {{ form.pincode }}
+                            {% if form.pincode.errors %}<div class="text-danger small mt-1">{{ form.pincode.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-warning btn-lg fw-bold shadow text-dark" style="background-color: #f59e0b; border-color: #d97706;">
+                            <i class="bi bi-truck me-2"></i> Register as Local Collector
+                        </button>
+                    </div>
+
+                    <div class="text-center">
+                        <span class="small text-muted">Already registered as a collector? </span>
+                        <a href="{% url 'login' %}" class="small fw-semibold text-warning-emphasis">Log in here</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

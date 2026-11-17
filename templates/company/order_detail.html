@@ -1,0 +1,658 @@
+{% extends 'company/base_company.html' %}
+
+{% block title %}Order #{{ order.order_number }} - EcoMarket{% endblock %}
+
+{% block company_content %}
+<style>
+    :root{
+        --em-primary:#1e6f4c;
+        --em-primary-dark:#155238;
+        --em-primary-light:#e8f5ef;
+        --em-accent:#f39c12;
+        --em-text:#1f2937;
+        --em-muted:#6b7280;
+        --em-border:#e9ecef;
+        --em-bg-soft:#f7f9f8;
+        --em-radius:14px;
+    }
+
+    .em-page{ color:var(--em-text); }
+
+    /* ---------- Inline icon utility ---------- */
+    .em-icon{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        line-height:0;
+        color:var(--em-muted);
+        flex-shrink:0;
+    }
+    .em-icon svg{ width:16px; height:16px; }
+    .em-icon-primary{ color:var(--em-primary); }
+    .em-icon-success{ color:#1e8a52; }
+    .em-icon-warning{ color:#c98a12; }
+    .em-icon-white{ color:#fff; }
+
+    /* ---------- Page header ---------- */
+    .em-breadcrumb{
+        font-size:.8rem;
+        color:var(--em-muted);
+        display:flex;
+        align-items:center;
+        gap:.35rem;
+        margin-bottom:.5rem;
+    }
+    .em-breadcrumb a{
+        color:var(--em-primary);
+        text-decoration:none;
+        font-weight:600;
+        display:inline-flex;
+        align-items:center;
+        gap:.3rem;
+    }
+    .em-breadcrumb a:hover{ text-decoration:underline; }
+    .em-page-header{
+        display:flex;
+        flex-wrap:wrap;
+        justify-content:space-between;
+        align-items:flex-start;
+        gap:1rem;
+        margin-bottom:1.75rem;
+        padding-bottom:1.5rem;
+        border-bottom:1px solid var(--em-border);
+    }
+    .em-page-title{
+        font-size:1.55rem;
+        font-weight:800;
+        color:var(--em-text);
+        margin:0;
+        display:flex;
+        align-items:center;
+        gap:.65rem;
+        flex-wrap:wrap;
+    }
+    .em-page-title .order-num{ color:var(--em-primary); }
+    .em-status-badge{
+        font-size:.72rem;
+        font-weight:700;
+        letter-spacing:.02em;
+        padding:.32rem .8rem;
+        border-radius:50px;
+        background:var(--em-primary-light);
+        color:var(--em-primary-dark);
+        display:inline-flex;
+        align-items:center;
+        gap:.35rem;
+        text-transform:uppercase;
+    }
+    .em-status-badge .dot{
+        width:7px;height:7px;border-radius:50%;
+        background:var(--em-primary);
+    }
+    .em-meta-line{
+        font-size:.85rem;
+        color:var(--em-muted);
+        margin-top:.5rem;
+        display:flex;
+        flex-wrap:wrap;
+        gap:.4rem 1rem;
+    }
+    .em-meta-line span{ display:inline-flex; align-items:center; gap:.35rem; }
+    .em-print-btn{
+        border-radius:50px;
+        font-weight:600;
+        font-size:.82rem;
+        padding:.55rem 1.2rem;
+        border:1.5px solid var(--em-border);
+        color:var(--em-text);
+        background:#fff;
+        display:inline-flex;
+        align-items:center;
+        gap:.4rem;
+        transition:all .2s ease;
+        white-space:nowrap;
+    }
+    .em-print-btn:hover{
+        background:var(--em-primary);
+        border-color:var(--em-primary);
+        color:#fff;
+    }
+    .em-print-btn:hover .em-icon{ color:#fff; }
+
+    /* ---------- Cards ---------- */
+    .em-card{
+        background:#fff;
+        border:1px solid var(--em-border);
+        border-radius:var(--em-radius);
+        padding:1.5rem;
+        box-shadow:0 2px 10px rgba(16,24,40,.04);
+        margin-bottom:1.5rem;
+    }
+    .em-card-title{
+        font-size:.72rem;
+        font-weight:700;
+        letter-spacing:.06em;
+        text-transform:uppercase;
+        color:var(--em-muted);
+        margin-bottom:1.5rem;
+        display:flex;
+        align-items:center;
+        gap:.5rem;
+    }
+    .em-section-heading{
+        font-size:1.05rem;
+        font-weight:700;
+        color:var(--em-text);
+        margin-bottom:0;
+        display:flex;
+        align-items:center;
+        gap:.55rem;
+    }
+
+    /* ---------- Stepper ---------- */
+    .stepper-wrapper{
+        display:flex;
+        justify-content:space-between;
+        position:relative;
+        padding:0 .5rem;
+    }
+    .stepper-track{
+        position:absolute;
+        top:19px;
+        left:6%;
+        right:6%;
+        height:3px;
+        background:var(--em-border);
+        z-index:0;
+        border-radius:3px;
+        overflow:hidden;
+    }
+    .stepper-track-fill{
+        height:100%;
+        width:0%;
+        background:var(--em-primary);
+        border-radius:3px;
+        transition:width .4s ease;
+    }
+    .step-item{
+        position:relative;
+        z-index:1;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        text-align:center;
+        flex:1;
+    }
+    .step-circle{
+        width:40px;height:40px;
+        border-radius:50%;
+        display:flex;align-items:center;justify-content:center;
+        font-weight:700;
+        font-size:.9rem;
+        background:#fff;
+        border:3px solid var(--em-border);
+        color:var(--em-muted);
+        transition:all .25s ease;
+    }
+    .step-circle svg{ width:18px; height:18px; }
+    .step-item.completed .step-circle{
+        background:var(--em-primary);
+        border-color:var(--em-primary);
+        color:#fff;
+    }
+    .step-item.active .step-circle{
+        background:#fff;
+        border-color:var(--em-accent);
+        color:var(--em-accent);
+        box-shadow:0 0 0 5px rgba(243,156,18,.15);
+        animation:em-pulse 1.8s ease-in-out infinite;
+    }
+    .step-item.upcoming .step-circle{
+        background:#fff;
+        border-color:var(--em-border);
+        color:#c2c8ce;
+    }
+    @keyframes em-pulse{
+        0%,100%{ box-shadow:0 0 0 5px rgba(243,156,18,.15); }
+        50%{ box-shadow:0 0 0 8px rgba(243,156,18,.08); }
+    }
+    .step-title{
+        margin-top:.6rem;
+        font-size:.75rem;
+        font-weight:600;
+        color:var(--em-muted);
+        max-width:100px;
+    }
+    .step-item.completed .step-title{ color:var(--em-primary); }
+    .step-item.active .step-title{ color:var(--em-text); font-weight:700; }
+    .step-item.upcoming .step-title{ color:#adb5bd; font-weight:500; }
+
+    /* ---------- Items table ---------- */
+    .em-table thead th{
+        font-size:.7rem;
+        text-transform:uppercase;
+        letter-spacing:.05em;
+        color:var(--em-muted);
+        font-weight:700;
+        border-bottom:2px solid var(--em-border);
+        padding-bottom:.75rem;
+        background:transparent;
+    }
+    .em-table tbody td{
+        padding:1rem .75rem;
+        border-bottom:1px solid var(--em-border);
+        vertical-align:middle;
+    }
+    .em-table tbody tr:last-child td{ border-bottom:none; }
+    .em-table tbody tr:hover{ background:var(--em-bg-soft); }
+    .em-item-name{
+        font-weight:600;
+        color:var(--em-text);
+        font-size:.92rem;
+    }
+    .em-sku-badge{
+        display:inline-block;
+        background:var(--em-bg-soft);
+        border:1px solid var(--em-border);
+        color:var(--em-muted);
+        font-size:.72rem;
+        padding:.2rem .5rem;
+        border-radius:6px;
+        font-family:'Courier New', monospace;
+    }
+    .em-qty-badge{
+        background:var(--em-primary-light);
+        color:var(--em-primary-dark);
+        font-weight:700;
+        font-size:.78rem;
+        padding:.3rem .6rem;
+        border-radius:8px;
+        display:inline-block;
+        min-width:34px;
+        text-align:center;
+    }
+
+    /* ---------- Financial breakdown ---------- */
+    .em-summary-box{
+        background:var(--em-bg-soft);
+        border:1px solid var(--em-border);
+        border-radius:12px;
+        padding:1.25rem 1.5rem;
+    }
+    .em-summary-row{
+        display:flex;
+        justify-content:space-between;
+        padding:.4rem 0;
+        font-size:.88rem;
+    }
+    .em-summary-row .label{ color:var(--em-muted); }
+    .em-summary-row .value{ font-weight:600; color:var(--em-text); }
+    .em-summary-total{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        padding-top:.9rem;
+        margin-top:.6rem;
+        border-top:2px dashed var(--em-border);
+        font-size:1.15rem;
+        font-weight:800;
+    }
+    .em-summary-total .value{ color:var(--em-primary); }
+
+    /* ---------- Sidebar cards ---------- */
+    .em-collector-card{
+        background:linear-gradient(135deg,var(--em-primary-light) 0%,#f2fbf6 100%);
+        border:1px solid #cdebdb;
+        border-radius:12px;
+        padding:1rem 1.1rem;
+    }
+    .em-collector-avatar{
+        width:42px;height:42px;
+        border-radius:50%;
+        background:var(--em-primary);
+        color:#fff;
+        display:flex;align-items:center;justify-content:center;
+        font-weight:700;
+        font-size:1rem;
+        flex-shrink:0;
+    }
+    .em-pending-box{
+        background:#fff8ec;
+        border:1px dashed #f0c987;
+        border-radius:12px;
+        padding:.9rem 1rem;
+        color:#8a6216;
+        font-size:.85rem;
+        display:flex;
+        align-items:center;
+        gap:.6rem;
+    }
+    .em-info-row{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        padding:.65rem 0;
+        border-bottom:1px solid var(--em-border);
+        font-size:.85rem;
+    }
+    .em-info-row:last-child{ border-bottom:none; }
+    .em-info-row .label{
+        color:var(--em-muted);
+        display:flex;
+        align-items:center;
+        gap:.45rem;
+    }
+    .em-info-row .value{ font-weight:700; color:var(--em-text); text-align:right; }
+
+    .em-status-pill-sm{
+        font-size:.75rem;
+        font-weight:700;
+        padding:.4rem .8rem;
+        border-radius:50px;
+        background:var(--em-primary-light);
+        color:var(--em-primary-dark);
+        display:inline-flex;
+        align-items:center;
+        gap:.4rem;
+    }
+    .em-status-pill-sm .dot{
+        width:7px;height:7px;border-radius:50%;
+        background:var(--em-primary);
+    }
+
+    .em-address-card address{
+        font-size:.88rem;
+        line-height:1.85;
+        color:var(--em-text);
+        margin-bottom:0;
+    }
+    .em-address-card .em-company-name{
+        font-weight:700;
+        font-size:.98rem;
+        color:var(--em-text);
+        display:block;
+        margin-bottom:.25rem;
+    }
+
+    @media print{
+        .em-print-btn{ display:none !important; }
+    }
+
+    @media (max-width: 767px){
+        .step-title{ font-size:.65rem; max-width:70px; }
+        .step-circle{ width:32px; height:32px; font-size:.75rem; }
+        .stepper-track{ top:15px; }
+        .em-page-title{ font-size:1.25rem; }
+    }
+</style>
+
+<div class="em-page">
+
+    <!-- Page Title Header -->
+    <div class="em-page-header">
+        <div>
+            <div class="em-breadcrumb">
+                <a href="{% url 'company_orders' %}">
+                    <span class="em-icon em-icon-primary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+                    </span>
+                    My Orders
+                </a>
+                <span>/</span>
+                <span>{{ order.order_number }}</span>
+            </div>
+            <h3 class="em-page-title">
+                Order <span class="order-num">#{{ order.order_number }}</span>
+                <span class="em-status-badge"><span class="dot"></span>{{ order.get_order_status_display }}</span>
+            </h3>
+            <div class="em-meta-line">
+                <span>
+                    <span class="em-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
+                    </span>
+                    Placed {{ order.created_at|date:"d M Y, h:i A" }}
+                </span>
+                <span>
+                    <span class="em-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.73Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                    </span>
+                    {{ order.items.count }} item{{ order.items.count|pluralize }}
+                </span>
+                <span>
+                    <span class="em-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    </span>
+                    Total: <strong class="text-dark">₹{{ order.total_amount }}</strong>
+                </span>
+            </div>
+        </div>
+        <div>
+            <button onclick="window.print()" class="em-print-btn">
+                <span class="em-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                </span>
+                Print Invoice
+            </button>
+        </div>
+    </div>
+
+    <!-- Fulfillment Stepper -->
+    <div class="em-card">
+        <h6 class="em-card-title">
+            <span class="em-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="14" height="11" rx="1"/><path d="M15 9h4l3 3v5h-7z"/><circle cx="6" cy="19" r="1.6"/><circle cx="17.5" cy="19" r="1.6"/></svg>
+            </span>
+            Live Shipment &amp; Dispatch Progress
+        </h6>
+        <div class="stepper-wrapper" data-stepper>
+            <div class="stepper-track"><div class="stepper-track-fill"></div></div>
+            {% for stage_val, stage_name, is_completed in order_stages %}
+                <div class="step-item" data-completed="{{ is_completed|yesno:'1,0' }}">
+                    <div class="step-circle">
+                        <span class="step-check" style="display:none">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                        </span>
+                        <span class="step-num">{{ forloop.counter }}</span>
+                    </div>
+                    <div class="step-title">{{ stage_name }}</div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Purchased Items & Invoice Details -->
+        <div class="col-lg-8">
+            <div class="em-card">
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                    <h5 class="em-section-heading">
+                        <span class="em-icon em-icon-primary">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.73Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+                        </span>
+                        Purchased Secondary Materials
+                    </h5>
+                    <button onclick="window.print()" class="em-print-btn">
+                        <span class="em-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                        </span>
+                        Print Tax Invoice
+                    </button>
+                </div>
+
+                <div class="table-responsive mb-3">
+                    <table class="table em-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Item Description</th>
+                                <th>SKU</th>
+                                <th>Unit Price</th>
+                                <th class="text-center">Qty</th>
+                                <th class="text-end">Line Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                                <tr>
+                                    <td>
+                                        <div class="em-item-name">{{ item.product_name }}</div>
+                                    </td>
+                                    <td><span class="em-sku-badge">{{ item.sku }}</span></td>
+                                    <td class="text-muted">₹{{ item.unit_price }}</td>
+                                    <td class="text-center"><span class="em-qty-badge">{{ item.quantity }}</span></td>
+                                    <td class="text-end fw-bold text-dark">₹{{ item.total_price }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Financial Breakdown -->
+                <div class="em-summary-box">
+                    <div class="em-summary-row">
+                        <span class="label">Subtotal</span>
+                        <span class="value">₹{{ order.subtotal }}</span>
+                    </div>
+                    <div class="em-summary-row">
+                        <span class="label">GST (18% ITC)</span>
+                        <span class="value">₹{{ order.tax_amount }}</span>
+                    </div>
+                    <div class="em-summary-row">
+                        <span class="label">Freight / Shipping</span>
+                        <span class="value">₹{{ order.shipping_fee }}</span>
+                    </div>
+                    <div class="em-summary-total">
+                        <span>Total Paid / Payable</span>
+                        <span class="value">₹{{ order.total_amount }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Logistics & Invoicing Profile -->
+        <div class="col-lg-4">
+            <!-- Logistics & Delivery Officer Details -->
+            <div class="em-card">
+                <h6 class="em-card-title">
+                    <span class="em-icon em-icon-primary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="14" height="11" rx="1"/><path d="M15 9h4l3 3v5h-7z"/><circle cx="6" cy="19" r="1.6"/><circle cx="17.5" cy="19" r="1.6"/></svg>
+                    </span>
+                    Logistics &amp; Delivery Assignment
+                </h6>
+
+                {% if order.assigned_collector %}
+                    <div class="em-collector-card d-flex align-items-start gap-3 mb-3">
+                        <div class="em-collector-avatar">
+                            {{ order.assigned_collector.get_full_name|default:order.assigned_collector.username|slice:":1"|upper }}
+                        </div>
+                        <div>
+                            <span class="text-success fw-bold small d-block mb-1">
+                                <span class="em-icon em-icon-success">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+                                </span>
+                                Assigned Delivery Collector
+                            </span>
+                            <div class="fw-bold text-dark">{{ order.assigned_collector.get_full_name|default:order.assigned_collector.username }}</div>
+                            {% if order.assigned_collector.phone %}
+                                <div class="text-muted small mt-1 d-flex align-items-center gap-1">
+                                    <span class="em-icon em-icon-success">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                                    </span>
+                                    {{ order.assigned_collector.phone }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="em-pending-box mb-3">
+                        <span class="em-icon em-icon-warning">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg>
+                        </span>
+                        <span>Delivery collector assignment pending by Admin.</span>
+                    </div>
+                {% endif %}
+
+                <div class="em-info-row">
+                    <span class="label">
+                        <span class="em-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="14" height="11" rx="1"/><path d="M15 9h4l3 3v5h-7z"/><circle cx="6" cy="19" r="1.6"/><circle cx="17.5" cy="19" r="1.6"/></svg>
+                        </span>
+                        Carrier
+                    </span>
+                    <span class="value">{{ order.shipping_carrier|default:"Standard Freight Fleet" }}</span>
+                </div>
+                <div class="em-info-row">
+                    <span class="label">
+                        <span class="em-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v10"/><path d="M6 5v14"/><path d="M10 5v14"/><path d="M14 5v14"/><path d="M18 7v10"/><path d="M21 7v10"/></svg>
+                        </span>
+                        Tracking / AWB
+                    </span>
+                    <span class="value text-primary font-monospace">{{ order.tracking_number|default:"Processing Dispatch" }}</span>
+                </div>
+                <div class="em-info-row">
+                    <span class="label">
+                        <span class="em-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22V15"/></svg>
+                        </span>
+                        Status
+                    </span>
+                    <span class="value">
+                        <span class="em-status-pill-sm"><span class="dot"></span>{{ order.get_order_status_display }}</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Shipping Destination -->
+            <div class="em-card em-address-card mb-0">
+                <h6 class="em-card-title">
+                    <span class="em-icon em-icon-primary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/></svg>
+                    </span>
+                    Delivery Destination
+                </h6>
+                <address>
+                    <span class="em-company-name">{{ order.company_name }}</span>
+                    Attn: {{ order.contact_person }} ({{ order.contact_phone }})<br>
+                    {{ order.shipping_address }}<br>
+                    {{ order.city }}, {{ order.state }} - {{ order.postal_code }}
+                </address>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var wrapper = document.querySelector('[data-stepper]');
+    if (!wrapper) return;
+
+    var items = Array.prototype.slice.call(wrapper.querySelectorAll('.step-item'));
+    var firstPendingFound = false;
+    var completedCount = 0;
+
+    items.forEach(function (item) {
+        var isCompleted = item.getAttribute('data-completed') === '1';
+        var check = item.querySelector('.step-check');
+        var num = item.querySelector('.step-num');
+
+        if (isCompleted) {
+            item.classList.add('completed');
+            check.style.display = 'inline-flex';
+            num.style.display = 'none';
+            completedCount++;
+        } else if (!firstPendingFound) {
+            item.classList.add('active');
+            firstPendingFound = true;
+        } else {
+            item.classList.add('upcoming');
+        }
+    });
+
+    var fill = wrapper.querySelector('.stepper-track-fill');
+    if (fill && items.length > 1) {
+        var pct = (completedCount / (items.length - 1)) * 100;
+        fill.style.width = Math.min(pct, 100) + '%';
+    }
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}Publish Recycled Product - Operational Admin{% endblock %}
+{% block breadcrumb_active %}Publish Product{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
+                <div>
+                    <div class="small text-muted mb-1">
+                        <a href="{% url 'admin_dashboard' %}" class="text-decoration-none" style="color: #0d9488;"><i class="bi bi-arrow-left"></i> Admin Dashboard</a> / Catalog
+                    </div>
+                    <h2 class="fw-bold text-dark mb-0">Publish Recycled Product to Marketplace 🛍️</h2>
+                    <p class="text-muted small mb-0">Convert verified recovered materials into marketable listings for corporate buyers.</p>
+                </div>
+            </div>
+
+            <div class="adm-card p-4 p-md-5">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <h5 class="fw-bold mb-3" style="color: #0d9488;">1. Product Identity & Origin</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-8">
+                            <label class="form-label small fw-semibold">Product Title *</label>
+                            {{ form.product_name }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Category *</label>
+                            {{ form.category }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Linked Recycling Run Record</label>
+                            {{ form.recycling_record }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Material Specification Type *</label>
+                            {{ form.material_type }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Product Condition / Grade *</label>
+                            {{ form.product_condition }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Origin Facility</label>
+                            {{ form.origin_recycling_center }}
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold mb-3 border-top pt-4" style="color: #0d9488;">2. Inventory & Pricing</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Quantity Available *</label>
+                            {{ form.quantity_available }}
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold">Unit *</label>
+                            {{ form.unit }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Price per Unit (₹) *</label>
+                            {{ form.price }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Discounted Price (₹)</label>
+                            {{ form.discount_price }}
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold mb-3 border-top pt-4" style="color: #0d9488;">3. Catalog Presentation & Media</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Product Image *</label>
+                            {{ form.primary_image }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Marketing Description *</label>
+                            {{ form.description }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Technical Specifications & Testing Data *</label>
+                            {{ form.specifications }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Listing Status *</label>
+                            {{ form.status }}
+                        </div>
+                        <div class="col-md-6 d-flex align-items-center pt-3">
+                            <div class="form-check">
+                                {{ form.is_featured }}
+                                <label class="form-check-label fw-semibold text-dark" for="{{ form.is_featured.id_for_label }}">
+                                    Highlight on Marketplace Homepage (Featured)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-adm-primary btn-lg fw-bold shadow">
+                            <i class="bi bi-cloud-upload me-2"></i> Publish to E-Commerce Marketplace
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

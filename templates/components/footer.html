@@ -1,0 +1,65 @@
+<footer class="footer-eco">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <span class="brand-icon"><i class="bi bi-recycle"></i></span>
+                    <span class="h4 text-white fw-bold mb-0">Eco<span style="color: #34d399;">Cycle</span></span>
+                </div>
+                <p class="text-secondary small">
+                    Pioneering closed-loop circular economy solutions for discarded electronic equipment. Connecting eco-conscious citizens with certified local collectors and industrial green buyers.
+                </p>
+                <div class="d-flex gap-3 mt-3">
+                    <a href="#" class="text-secondary fs-5"><i class="bi bi-globe"></i></a>
+                    <a href="#" class="text-secondary fs-5"><i class="bi bi-linkedin"></i></a>
+                    <a href="#" class="text-secondary fs-5"><i class="bi bi-twitter-x"></i></a>
+                    <a href="#" class="text-secondary fs-5"><i class="bi bi-github"></i></a>
+                </div>
+            </div>
+
+            <div class="col-lg-2 col-md-6">
+                <h6 class="footer-title">Platform</h6>
+                <ul class="list-unstyled">
+                    <li><a href="{% url 'home' %}" class="footer-link">Home</a></li>
+                    <li><a href="{% url 'submit_ewaste' %}" class="footer-link">Recycle E-Waste</a></li>
+                    <li><a href="{% url 'product_list' %}" class="footer-link">Marketplace</a></li>
+                    <li><a href="{% url 'impact' %}" class="footer-link">Impact Metrics</a></li>
+                    <li><a href="{% url 'about' %}" class="footer-link">About Mission</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <h6 class="footer-title">For Businesses</h6>
+                <ul class="list-unstyled">
+                    <li><a href="{% url 'register_company' %}" class="footer-link">Corporate Buyer Account</a></li>
+                    <li><a href="{% url 'product_list' %}?material=Copper" class="footer-link">Recovered Copper & Metals</a></li>
+                    <li><a href="{% url 'product_list' %}?material=Circuit" class="footer-link">Refurbished Components</a></li>
+                    <li><a href="{% url 'register_collector' %}" class="footer-link">Collector Network Onboarding</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <h6 class="footer-title">Facility & Standards</h6>
+                <p class="small text-secondary mb-2">
+                    <i class="bi bi-geo-alt-fill text-success me-2"></i>Central Recovery Center #1, CleanTech Eco-Park
+                </p>
+                <p class="small text-secondary mb-2">
+                    <i class="bi bi-shield-check text-success me-2"></i>ISO-14001 & R2 Certified Facility
+                </p>
+                <p class="small text-secondary mb-0">
+                    <i class="bi bi-envelope-fill text-success me-2"></i>support@ecocycle.green
+                </p>
+            </div>
+        </div>
+
+        <hr class="border-secondary my-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center small text-secondary">
+            <div>&copy; 2026 EcoCycle Circular Technologies. All rights reserved.</div>
+            <div class="d-flex gap-3 mt-2 mt-md-0">
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="#" class="footer-link">Terms of Service</a>
+                <a href="#" class="footer-link">Zero-Landfill Guarantee</a>
+            </div>
+        </div>
+    </div>
+</footer>

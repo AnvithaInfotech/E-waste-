@@ -1,0 +1,95 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block title %}Assign Collector - {{ submission.tracking_id }}{% endblock %}
+{% block breadcrumb_active %}Dispatch Collector{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom">
+        <div>
+            <div class="small text-muted mb-1">
+                <a href="{% url 'admin_ewaste_list' %}" class="text-decoration-none" style="color: #0d9488;"><i class="bi bi-arrow-left"></i> E-Waste Submissions</a> / Dispatch
+            </div>
+            <h2 class="fw-bold text-dark mb-0">Assign Local Collector: <span style="color: #0d9488;">{{ submission.tracking_id }}</span></h2>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Submission Summary -->
+        <div class="col-lg-5">
+            <div class="adm-card mb-4">
+                <h5 class="fw-bold text-dark mb-3">Item & Location Summary</h5>
+                <h6 class="fw-bold text-success">{{ submission.waste_name }}</h6>
+                <p class="small text-muted mb-2">Category: <strong>{{ submission.category.name }}</strong> | Qty: <strong>{{ submission.quantity }} (~{{ submission.approximate_weight_kg }} kg)</strong></p>
+
+                <div class="p-3 bg-light rounded-3 small mb-3">
+                    <strong>Client:</strong> {{ submission.user.get_full_name|default:submission.user.username }}<br>
+                    <strong>Phone:</strong> {{ submission.contact_phone }}<br>
+                    <strong>Address:</strong> {{ submission.pickup_address }}, {{ submission.pickup_city }}<br>
+                    <strong>Requested Slot:</strong> {{ submission.preferred_date }} ({{ submission.get_preferred_time_slot_display }})
+                </div>
+            </div>
+
+            <!-- Available Collectors Workload Metrics -->
+            <div class="adm-card">
+                <h6 class="fw-bold text-dark mb-3"><i class="bi bi-people-fill text-teal me-2" style="color: #0d9488;"></i>Collector Network Availability</h6>
+                <div class="list-group list-group-flush small">
+                    {% for col in collectors %}
+                        <div class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-bold text-dark">{{ col.get_full_name|default:col.username }}</div>
+                                <div class="text-muted">{{ col.collector_profile.service_area }} | {{ col.collector_profile.vehicle_type }}</div>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge {% if col.collector_profile.is_available %}bg-success{% else %}bg-secondary{% endif %}">
+                                    {% if col.collector_profile.is_available %}Online{% else %}Busy{% endif %}
+                                </span>
+                                <div class="text-muted" style="font-size: 0.75rem;">{{ col.assigned_pickups.count }} Active Jobs</div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="text-muted py-2">No active collectors registered in network.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Assignment Form -->
+        <div class="col-lg-7">
+            <div class="adm-card">
+                <h5 class="fw-bold mb-3" style="color: #0d9488;"><i class="bi bi-truck me-2"></i>Dispatch Collector Form</h5>
+
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Choose Certified Local Collector *</label>
+                        {{ form.collector }}
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Scheduled Pickup Date *</label>
+                            {{ form.scheduled_date }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Pickup Time Slot</label>
+                            {{ form.scheduled_slot }}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold small">Special Collector Instructions</label>
+                        {{ form.collector_notes }}
+                    </div>
+
+                    <button type="submit" class="btn btn-adm-primary btn-lg w-100 fw-bold">
+                        <i class="bi bi-send-check me-2"></i> Confirm Assignment & Notify Collector
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

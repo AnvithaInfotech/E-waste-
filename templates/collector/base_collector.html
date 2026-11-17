@@ -1,0 +1,145 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Field Logistics Portal - EcoCycle Collector{% endblock %}</title>
+    
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5.3.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!-- Local Collector Field Logistics CSS -->
+    <link rel="stylesheet" href="{% static 'css/collector.css' %}">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="collector-body">
+
+    <!-- 1. Collector Top App Header -->
+    <header class="col-header py-3">
+        <div class="container d-flex justify-content-between align-items-center">
+            <!-- Brand -->
+            <a href="{% url 'collector_dashboard' %}" class="col-brand">
+                <div class="col-brand-icon">
+                    <i class="bi bi-truck"></i>
+                </div>
+                <div>
+                    <div class="fw-bold fs-5 text-white">Eco<span style="color: #f97316;">Collector</span></div>
+                    <div class="text-white-50 small" style="font-size: 0.72rem;">Field Logistics Portal</div>
+                </div>
+            </a>
+
+            <!-- Right Controls: Status & User -->
+            <div class="d-flex align-items-center gap-3">
+                <span class="col-duty-pill {% if user.collector_profile.is_available %}col-duty-active{% else %}col-duty-offline{% endif %} d-none d-sm-inline-flex">
+                    <i class="bi bi-circle-fill" style="font-size: 0.5rem;"></i>
+                    {% if user.collector_profile.is_available %}On Duty / Available{% else %}Offline{% endif %}
+                </span>
+
+                <!-- Profile Dropdown -->
+                <div class="dropdown">
+                    <button class="btn btn-dark btn-sm border border-secondary d-flex align-items-center gap-2 rounded-pill px-3 py-1" type="button" data-bs-toggle="dropdown">
+                        <div class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 24px; height: 24px; font-size: 0.75rem;">
+                            {{ user.username|make_list|first|upper }}
+                        </div>
+                        <span class="small text-white fw-semibold">{{ user.username }}</span>
+                        <i class="bi bi-chevron-down text-muted small"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" style="min-width: 200px;">
+                        <li class="dropdown-header small text-uppercase text-muted">Field Officer: <strong>{{ user.username }}</strong></li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li><a class="dropdown-item py-2" href="{% url 'collector_profile' %}"><i class="bi bi-gear-fill me-2 text-warning"></i>Profile &amp; Shift Settings</a></li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li><a class="dropdown-item py-2 text-danger fw-semibold" href="{% url 'logout' %}?role=COLLECTOR"><i class="bi bi-box-arrow-right me-2"></i>Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. Collector Navigation Bar / Tabs (Desktop & Tablet) -->
+    <nav class="col-navbar shadow-sm sticky-top">
+        <div class="container d-flex align-items-center justify-content-between overflow-x-auto">
+            <div class="d-flex align-items-center">
+                <a href="{% url 'collector_dashboard' %}" class="col-nav-link {% if request.resolver_match.url_name == 'collector_dashboard' %}active{% endif %}">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{% url 'collector_pickups' %}" class="col-nav-link {% if request.resolver_match.url_name == 'collector_pickups' or request.resolver_match.url_name == 'collector_pickup_detail' %}active{% endif %}">
+                    <i class="bi bi-list-check"></i>
+                    <span>Assigned Pickups</span>
+                    {% if pending_pickups_count > 0 %}
+                        <span class="badge bg-danger rounded-pill">{{ pending_pickups_count }}</span>
+                    {% endif %}
+                </a>
+                <a href="{% url 'collector_history' %}" class="col-nav-link {% if request.resolver_match.url_name == 'collector_history' %}active{% endif %}">
+                    <i class="bi bi-clock-history"></i>
+                    <span>Completed Jobs</span>
+                </a>
+                <a href="{% url 'collector_profile' %}" class="col-nav-link {% if request.resolver_match.url_name == 'collector_profile' %}active{% endif %}">
+                    <i class="bi bi-gear-fill"></i>
+                    <span>Vehicle & Zone</span>
+                </a>
+            </div>
+
+            <!-- Quick Action -->
+            <div class="d-none d-md-block py-2">
+                <a href="{% url 'collector_pickups' %}" class="btn btn-col-primary btn-sm">
+                    <i class="bi bi-geo-alt-fill me-1"></i> Active Route
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container mt-3">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show border-0 shadow-sm" role="alert" style="background: #ffffff; border-left: 4px solid var(--col-primary) !important;">
+                    <i class="bi bi-bell-fill me-2" style="color: var(--col-primary);"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Main Content Workspace -->
+    <main class="main-content py-3">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Mobile Bottom Navigation Bar (Field Drivers) -->
+    <div class="col-mobile-nav">
+        <a href="{% url 'collector_dashboard' %}" class="col-mobile-nav-item {% if request.resolver_match.url_name == 'collector_dashboard' %}active{% endif %}">
+            <i class="bi bi-speedometer2"></i>
+            <span>Overview</span>
+        </a>
+        <a href="{% url 'collector_pickups' %}" class="col-mobile-nav-item {% if request.resolver_match.url_name == 'collector_pickups' %}active{% endif %}">
+            <i class="bi bi-truck"></i>
+            <span>Pickups</span>
+        </a>
+        <a href="{% url 'collector_history' %}" class="col-mobile-nav-item {% if request.resolver_match.url_name == 'collector_history' %}active{% endif %}">
+            <i class="bi bi-clock-history"></i>
+            <span>History</span>
+        </a>
+        <a href="{% url 'collector_profile' %}" class="col-mobile-nav-item {% if request.resolver_match.url_name == 'collector_profile' %}active{% endif %}">
+            <i class="bi bi-person-gear"></i>
+            <span>Profile</span>
+        </a>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

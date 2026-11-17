@@ -1,0 +1,244 @@
+{% extends 'super_admin/base_super_admin.html' %}
+
+{% block title %}Collector Fleet Governance - Super Admin{% endblock %}
+{% block breadcrumb_active %}Local Collector Fleet{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom border-secondary">
+        <div>
+            <h2 class="fw-bold text-white mb-0"><i class="bi bi-truck text-warning me-2"></i>Collector Fleet & Logistics Governance</h2>
+            <p class="text-secondary small mb-0">Onboard verified field drivers, verify applicant registrations, assign geographic territories, and monitor real-time pickup capacities.</p>
+        </div>
+        <div class="mt-3 mt-md-0 d-flex gap-2">
+            <a href="{% url 'super_admin_dashboard' %}" class="btn btn-sa-glass btn-sm">
+                <i class="bi bi-speedometer2 me-1"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Status Filters & Search Bar -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'super_admin_collectors' %}?status=ALL{% if query %}&q={{ query }}{% endif %}" class="btn btn-sm {% if selected_status == 'ALL' or not selected_status %}btn-sa-primary{% else %}btn-sa-glass{% endif %}">
+                All ({{ total_count }})
+            </a>
+            <a href="{% url 'super_admin_collectors' %}?status=PENDING{% if query %}&q={{ query }}{% endif %}" class="btn btn-sm {% if selected_status == 'PENDING' %}btn-warning text-dark fw-bold{% else %}btn-sa-glass text-warning{% endif %}">
+                <i class="bi bi-hourglass-split me-1"></i>Pending Approvals ({{ pending_count }})
+            </a>
+            <a href="{% url 'super_admin_collectors' %}?status=VERIFIED{% if query %}&q={{ query }}{% endif %}" class="btn btn-sm {% if selected_status == 'VERIFIED' %}btn-success text-white fw-bold{% else %}btn-sa-glass text-success{% endif %}">
+                <i class="bi bi-patch-check me-1"></i>Verified Fleet ({{ verified_count }})
+            </a>
+            <a href="{% url 'super_admin_collectors' %}?status=REJECTED{% if query %}&q={{ query }}{% endif %}" class="btn btn-sm {% if selected_status == 'REJECTED' %}btn-danger text-white fw-bold{% else %}btn-sa-glass text-danger{% endif %}">
+                <i class="bi bi-x-circle me-1"></i>Rejected ({{ rejected_count }})
+            </a>
+        </div>
+
+        <form method="GET" class="d-flex gap-2" style="max-width: 360px; width: 100%;">
+            <input type="hidden" name="status" value="{{ selected_status|default:'ALL' }}">
+            <div class="input-group">
+                <input type="text" name="q" value="{{ query|default:'' }}" class="form-control sa-form-control" placeholder="Search collector, phone, area...">
+                {% if query %}
+                    <a href="{% url 'super_admin_collectors' %}?status={{ selected_status|default:'ALL' }}" class="btn btn-sa-glass"><i class="bi bi-x"></i></a>
+                {% endif %}
+                <button type="submit" class="btn btn-sa-primary"><i class="bi bi-search"></i></button>
+            </div>
+        </form>
+    </div>
+
+    <div class="row g-4">
+        <!-- 1. Add / Onboard Collector (Super Admin direct add) -->
+        <div class="col-lg-4">
+            <div class="sa-card">
+                <h5 class="fw-bold text-white mb-3"><i class="bi bi-person-plus-fill text-warning me-2"></i>Onboard New Collector</h5>
+                <p class="text-secondary small mb-3">Collectors added directly by Super Admin are automatically verified and granted instant login access.</p>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger small py-2 mb-3">Please fix highlighted fields.</div>
+                    {% endif %}
+
+                    <div class="row g-2 mb-2">
+                        <div class="col-6">
+                            <label class="form-label small text-secondary fw-semibold">First Name *</label>
+                            {{ form.first_name }}
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small text-secondary fw-semibold">Last Name</label>
+                            {{ form.last_name }}
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label small text-secondary fw-semibold">Username *</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}<div class="text-danger small">{{ form.username.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small text-secondary fw-semibold">Email *</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small text-secondary fw-semibold">Phone *</label>
+                        {{ form.phone }}
+                        {% if form.phone.errors %}<div class="text-danger small">{{ form.phone.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small text-secondary fw-semibold">Password *</label>
+                        {{ form.password }}
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small text-secondary fw-semibold">Service Area / Zone *</label>
+                        {{ form.service_area }}
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small text-secondary fw-semibold">Vehicle Type *</label>
+                            {{ form.vehicle_type }}
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small text-secondary fw-semibold">Vehicle Plate</label>
+                            {{ form.vehicle_number }}
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-sa-gold w-100 fw-bold">
+                        <i class="bi bi-truck me-1"></i> Create & Verify Collector
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 2. Collectors Table -->
+        <div class="col-lg-8">
+            <div class="sa-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-white mb-0">Collector Roster & Applications</h5>
+                    <span class="badge bg-dark border border-secondary text-secondary font-monospace">{{ total_count }} Records</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="sa-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Collector</th>
+                                <th>Service Area</th>
+                                <th>Vehicle</th>
+                                <th>Workload</th>
+                                <th>Status</th>
+                                <th class="text-end">Verification</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for col in collectors %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold text-white">{{ col.get_full_name|default:col.username }}</div>
+                                        <div class="small text-muted"><i class="bi bi-telephone me-1"></i>{{ col.phone|default:"No phone" }}</div>
+                                        <div class="small text-secondary font-monospace">@{{ col.username }}</div>
+                                    </td>
+                                    <td class="text-secondary small">
+                                        <div class="text-white">{{ col.collector_profile.service_area }}</div>
+                                        {% if col.city %}<span class="text-muted small">{{ col.city }}, {{ col.state }}</span>{% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="text-white small">{{ col.collector_profile.vehicle_type }}</div>
+                                        <span class="small text-warning font-monospace">{{ col.collector_profile.vehicle_number|default:"" }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-dark border border-secondary">{{ col.assigned_pickups.count }} Active</span>
+                                        {% if col.collector_profile.is_available %}
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle ms-1">Online</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle ms-1">Offline</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if col.collector_profile.verification_status == 'VERIFIED' %}
+                                            <span class="badge bg-success"><i class="bi bi-patch-check-fill me-1"></i>Verified</span>
+                                        {% elif col.collector_profile.verification_status == 'PENDING' %}
+                                            <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>Pending</span>
+                                        {% elif col.collector_profile.verification_status == 'REJECTED' %}
+                                            <span class="badge bg-danger">Rejected</span>
+                                        {% elif col.collector_profile.verification_status == 'SUSPENDED' %}
+                                            <span class="badge bg-secondary">Suspended</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <button type="button" class="btn btn-sm btn-sa-primary" data-bs-toggle="modal" data-bs-target="#verifyCollectorModal{{ col.collector_profile.id }}">
+                                            <i class="bi bi-shield-check me-1"></i> Manage
+                                        </button>
+
+                                        <!-- Verification Modal -->
+                                        <div class="modal fade" id="verifyCollectorModal{{ col.collector_profile.id }}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog text-start">
+                                                <div class="modal-content" style="background: #111827; color: #ffffff; border: 1px solid #374151;">
+                                                    <div class="modal-header border-secondary">
+                                                        <h5 class="modal-title fw-bold text-white">
+                                                            <i class="bi bi-truck text-warning me-2"></i>Verify {{ col.get_full_name|default:col.username }}
+                                                        </h5>
+                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <form method="POST">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="action" value="UPDATE_STATUS">
+                                                        <input type="hidden" name="collector_profile_id" value="{{ col.collector_profile.id }}">
+                                                        
+                                                        <div class="modal-body">
+                                                            <div class="p-3 rounded-3 small mb-3 border border-secondary" style="background: #1f2937;">
+                                                                <div class="row g-2">
+                                                                    <div class="col-6"><strong class="text-white">Full Name:</strong> <span class="text-secondary">{{ col.get_full_name|default:"Not specified" }}</span></div>
+                                                                    <div class="col-6"><strong class="text-white">Username:</strong> <span class="text-secondary">@{{ col.username }}</span></div>
+                                                                    <div class="col-6"><strong class="text-white">Email:</strong> <span class="text-secondary">{{ col.email }}</span></div>
+                                                                    <div class="col-6"><strong class="text-white">Phone:</strong> <span class="text-secondary">{{ col.phone }}</span></div>
+                                                                    <div class="col-6"><strong class="text-white">Service Area:</strong> <span class="text-secondary">{{ col.collector_profile.service_area }}</span></div>
+                                                                    <div class="col-6"><strong class="text-white">Vehicle:</strong> <span class="text-secondary">{{ col.collector_profile.vehicle_type }} ({{ col.collector_profile.vehicle_number|default:"No plate" }})</span></div>
+                                                                    <div class="col-12"><strong class="text-white">Address:</strong> <span class="text-secondary">{{ col.address|default:"" }} {{ col.city }} {{ col.state }} {{ col.pincode }}</span></div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="mb-3">
+                                                                <label class="form-label small text-secondary fw-semibold">Approval Status</label>
+                                                                <select name="status" class="form-select sa-form-control">
+                                                                    <option value="VERIFIED" {% if col.collector_profile.verification_status == 'VERIFIED' %}selected{% endif %}>Verified & Approved (Allow Login)</option>
+                                                                    <option value="PENDING" {% if col.collector_profile.verification_status == 'PENDING' %}selected{% endif %}>Pending Verification (Block Login)</option>
+                                                                    <option value="REJECTED" {% if col.collector_profile.verification_status == 'REJECTED' %}selected{% endif %}>Rejected (Block Login)</option>
+                                                                    <option value="SUSPENDED" {% if col.collector_profile.verification_status == 'SUSPENDED' %}selected{% endif %}>Suspended (Block Login)</option>
+                                                                </select>
+                                                            </div>
+
+                                                            <div class="mb-3">
+                                                                <label class="form-label small text-secondary fw-semibold">Remarks / Rejection Reason</label>
+                                                                <textarea name="rejection_reason" class="form-control sa-form-control" rows="2" placeholder="Optional remarks sent to collector in notification">{{ col.collector_profile.rejection_reason|default:'' }}</textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer border-secondary">
+                                                            <button type="button" class="btn btn-sa-glass btn-sm" data-bs-dismiss="modal">Close</button>
+                                                            <button type="submit" class="btn btn-sa-gold btn-sm fw-bold">Save Status</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-5 text-muted">
+                                        <i class="bi bi-truck fs-1 text-muted d-block mb-2"></i>
+                                        No collectors found matching the current filter.
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

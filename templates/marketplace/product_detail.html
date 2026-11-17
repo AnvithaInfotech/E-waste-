@@ -1,0 +1,242 @@
+{% extends 'marketplace/base_marketplace.html' %}
+
+{% block title %}{{ product.product_name }} - EcoMarket B2B{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a href="{% url 'marketplace_home' %}" class="text-primary text-decoration-none">Storefront</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'product_list' %}?category={{ product.category.slug }}" class="text-primary text-decoration-none">{{ product.category.name }}</a></li>
+            <li class="breadcrumb-item active text-truncate" style="max-width: 300px;" aria-current="page">{{ product.product_name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-5">
+        <!-- Product Images & Provenance -->
+        <div class="col-lg-6">
+            <div class="card border rounded-4 shadow-sm overflow-hidden mb-4" style="background: #ffffff;">
+                <div class="p-4 text-center" style="min-height: 400px; display: flex; align-items: center; justify-content: center; background: #f8fafc;">
+                    {% if product.primary_image %}
+                        <img src="{{ product.primary_image.url }}" alt="{{ product.product_name }}" class="img-fluid rounded-3" style="max-height: 380px; object-fit: contain;">
+                    {% else %}
+                        <i class="bi bi-box-seam text-secondary" style="font-size: 5rem;"></i>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Provenance & Ecological Badge -->
+            <div class="card p-4 border rounded-4 shadow-sm border-start border-4 border-success bg-white">
+                <h6 class="fw-bold text-success mb-2"><i class="bi bi-patch-check-fill me-2"></i>Certified Sourcing & Laboratory Assay</h6>
+                <div class="row g-3 small">
+                    <div class="col-6">
+                        <span class="text-muted d-block">Origin Recovery Facility:</span>
+                        <strong>{{ product.origin_recycling_center }}</strong>
+                    </div>
+                    <div class="col-6">
+                        <span class="text-muted d-block">Material Composition:</span>
+                        <strong>{{ product.material_type }}</strong>
+                    </div>
+                    {% if product.recycling_record %}
+                        <div class="col-12 mt-2 pt-2 border-top">
+                            <span class="text-muted d-block">Associated Refining Batch:</span>
+                            <span class="font-monospace text-dark fw-bold">{{ product.recycling_record.batch_code }}</span> ({{ product.recycling_record.get_processing_method_display }})
+                        </div>
+                        {% if product.recycling_record.submission %}
+                            <div class="col-12 mt-2 pt-2 border-top">
+                                <span class="text-muted d-block mb-1">Source E-Waste Item:</span>
+                                <div class="d-flex align-items-center gap-2">
+                                    {% if product.recycling_record.submission.primary_image and product.recycling_record.submission.primary_image != product.primary_image %}
+                                        <a href="{{ product.recycling_record.submission.primary_image.url }}" target="_blank" title="View Original Damaged Condition Before Recycling">
+                                            <img src="{{ product.recycling_record.submission.primary_image.url }}" alt="Damaged e-waste" class="rounded border" style="width: 44px; height: 44px; object-fit: cover;">
+                                        </a>
+                                    {% endif %}
+                                    <div>
+                                        <div class="fw-bold text-dark small">{{ product.recycling_record.submission.waste_name }}</div>
+                                        <span class="badge bg-secondary-subtle text-secondary font-monospace" style="font-size: 0.65rem;">{{ product.recycling_record.submission.tracking_id }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Purchase Information -->
+        <div class="col-lg-6">
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill fw-semibold mb-2">
+                {{ product.get_product_condition_display }}
+            </span>
+            <h2 class="fw-bold text-dark mb-2">{{ product.product_name }}</h2>
+            <div class="small text-muted font-monospace mb-3">SKU: {{ product.sku }} | Category: {{ product.category.name }}</div>
+
+            <!-- Pricing Box -->
+            <div class="p-4 rounded-4 mb-4 d-flex align-items-baseline gap-3" style="background: #eff6ff; border: 1px solid #bfdbfe;">
+                <span class="display-6 fw-bold text-primary">₹{{ product.effective_price }}</span>
+                <span class="text-muted fw-semibold">/ {{ product.unit }}</span>
+                {% if product.discount_price and product.discount_price < product.price %}
+                    <span class="text-muted text-decoration-line-through">₹{{ product.price }}</span>
+                    <span class="badge bg-danger">Save on Bulk</span>
+                {% endif %}
+            </div>
+
+            <!-- Stock Availability Box -->
+            <div class="p-3 rounded-3 border mb-4 {% if product.quantity_available > 0 %}bg-success-subtle border-success-subtle{% else %}bg-danger-subtle border-danger-subtle{% endif %}">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="small text-muted d-block fw-semibold">Available Stock Quantity:</span>
+                        {% if product.quantity_available > 0 %}
+                            <span class="fs-5 fw-bold text-success">
+                                <i class="bi bi-check-circle-fill me-1"></i> {{ product.quantity_available|floatformat:0 }} {{ product.unit }} Available
+                            </span>
+                        {% else %}
+                            <span class="fs-5 fw-bold text-danger">
+                                <i class="bi bi-x-circle-fill me-1"></i> Out of Stock
+                            </span>
+                        {% endif %}
+                    </div>
+                    {% if product.quantity_available > 0 %}
+                        <span class="badge bg-success">Ready to Dispatch</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Add to Cart Form with Live Stock Validation -->
+            {% if user.is_authenticated %}
+                <form method="POST" action="{% url 'add_to_cart' product.id %}" id="addToCartForm" class="mb-4 p-3 bg-white rounded-3 border shadow-sm">
+                    {% csrf_token %}
+                    
+                    <!-- Live Stock Alert Message Box -->
+                    <div id="stockAlertBox" class="alert alert-danger py-2 px-3 mb-3 small d-none rounded-3">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <span id="stockAlertText"></span>
+                    </div>
+
+                    <div class="row g-3 align-items-center mb-3">
+                        <div class="col-auto">
+                            <label class="form-label fw-semibold small mb-0">Order Quantity ({{ product.unit }}):</label>
+                        </div>
+                        <div class="col-auto">
+                            <input 
+                                type="number" 
+                                id="orderQuantityInput"
+                                name="quantity" 
+                                value="1" 
+                                min="1" 
+                                max="{{ product.quantity_available|floatformat:0 }}" 
+                                class="form-control text-center fw-bold" 
+                                style="width: 120px;"
+                                data-max-stock="{{ product.quantity_available|floatformat:0 }}"
+                                data-unit="{{ product.unit }}"
+                            >
+                        </div>
+                        <div class="col-auto small text-muted">
+                            (Max: {{ product.quantity_available|floatformat:0 }} {{ product.unit }})
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mt-2">
+                        <div class="col-sm-6">
+                            <button type="submit" name="buy_now" value="1" id="buyNowBtn" class="btn btn-warning btn-lg w-100 fw-bold shadow-sm text-dark d-flex align-items-center justify-content-center gap-2">
+                                <i class="bi bi-lightning-charge-fill"></i> Buy Now
+                            </button>
+                        </div>
+                        <div class="col-sm-6">
+                            <button type="submit" id="addToCartBtn" class="btn btn-ecom-primary btn-lg w-100 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2">
+                                <i class="bi bi-cart-plus-fill"></i> Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const qtyInput = document.getElementById('orderQuantityInput');
+                    const alertBox = document.getElementById('stockAlertBox');
+                    const alertText = document.getElementById('stockAlertText');
+                    const submitBtn = document.getElementById('addToCartBtn');
+                    const buyBtn = document.getElementById('buyNowBtn');
+                    const maxStock = parseInt(qtyInput.getAttribute('data-max-stock') || '0', 10);
+                    const unitName = qtyInput.getAttribute('data-unit') || 'units';
+
+                    function validateQuantity() {
+                        const val = parseInt(qtyInput.value, 10);
+                        if (isNaN(val) || val < 1) {
+                            alertBox.classList.remove('d-none');
+                            alertText.textContent = `Please enter a valid quantity of at least 1 ${unitName}.`;
+                            if (submitBtn) submitBtn.disabled = true;
+                            if (buyBtn) buyBtn.disabled = true;
+                            return false;
+                        } else if (val > maxStock) {
+                            alertBox.classList.remove('d-none');
+                            alertText.innerHTML = `<strong>⚠️ Stock Limit Alert:</strong> Only <strong>${maxStock} ${unitName}</strong> available in stock! You cannot add <strong>${val} ${unitName}</strong>.`;
+                            if (submitBtn) submitBtn.disabled = true;
+                            if (buyBtn) buyBtn.disabled = true;
+                            return false;
+                        } else {
+                            alertBox.classList.add('d-none');
+                            alertText.textContent = '';
+                            if (submitBtn) submitBtn.disabled = false;
+                            if (buyBtn) buyBtn.disabled = false;
+                            return true;
+                        }
+                    }
+
+                    qtyInput.addEventListener('input', validateQuantity);
+                    qtyInput.addEventListener('change', validateQuantity);
+
+                    document.getElementById('addToCartForm').addEventListener('submit', function(e) {
+                        if (!validateQuantity()) {
+                            e.preventDefault();
+                            alert(`Cannot proceed: Only ${maxStock} ${unitName} available in stock!`);
+                        }
+                    });
+                });
+                </script>
+            {% else %}
+                <div class="alert alert-info py-3 mb-4 rounded-3 border-0 shadow-sm">
+                    <i class="bi bi-info-circle me-2"></i>Please <a href="{% url 'login' %}?next={{ request.path }}" class="fw-bold text-primary">log in</a> or <a href="{% url 'register_user' %}" class="fw-bold text-primary">create an account</a> to purchase recycled products.
+                </div>
+            {% endif %}
+
+            <!-- Description -->
+            <h5 class="fw-bold text-dark mt-4 mb-2">Description</h5>
+            <p class="text-secondary" style="line-height: 1.6;">{{ product.description }}</p>
+
+            <!-- Technical Specifications -->
+            <h5 class="fw-bold text-dark mt-4 mb-2">Technical & Assay Specifications</h5>
+            <div class="p-3 bg-white border rounded-3 small">
+                <pre class="mb-0 font-monospace text-dark" style="white-space: pre-wrap; font-family: inherit;">{{ product.specifications }}</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    {% if related_products %}
+        <div class="mt-5 pt-4 border-top">
+            <h4 class="fw-bold text-dark mb-4">Related Secondary Materials in {{ product.category.name }}</h4>
+            <div class="row g-4">
+                {% for rel in related_products %}
+                    <div class="col-md-3 col-sm-6">
+                        <div class="ecom-product-card">
+                            <div class="ecom-img-holder" style="height: 150px;">
+                                {% if rel.primary_image %}
+                                    <img src="{{ rel.primary_image.url }}" alt="{{ rel.product_name }}">
+                                {% endif %}
+                            </div>
+                            <div class="p-3">
+                                <h6 class="fw-bold text-dark text-truncate mb-1">
+                                    <a href="{% url 'product_detail' rel.slug %}" class="text-dark text-decoration-none">{{ rel.product_name }}</a>
+                                </h6>
+                                <div class="fw-bold text-primary">₹{{ rel.effective_price }} / {{ rel.unit }}</div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

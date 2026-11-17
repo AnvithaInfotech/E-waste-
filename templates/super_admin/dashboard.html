@@ -1,0 +1,278 @@
+{% extends 'super_admin/base_super_admin.html' %}
+
+{% block title %}Super Admin Platform Governance - EcoCycle{% endblock %}
+{% block breadcrumb_active %}Executive Command Center{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom border-secondary">
+        <div>
+            <h2 class="fw-bold text-white mb-1">
+                <i class="bi bi-shield-lock-fill text-warning me-2"></i>Platform Governance & Master Control
+            </h2>
+            <p class="text-secondary small mb-0">Global management of platform roles, corporate verifications, logistics fleet, categories, and system logs.</p>
+        </div>
+        <div class="mt-3 mt-md-0 d-flex gap-2 flex-wrap">
+            <a href="{% url 'super_admin_ewaste' %}" class="btn btn-sa-primary btn-sm">
+                <i class="bi bi-cpu me-1"></i> All E-Waste Requests
+            </a>
+            <a href="{% url 'super_admin_companies' %}" class="btn btn-sa-gold btn-sm">
+                <i class="bi bi-building-check me-1"></i> Verify Companies ({{ pending_companies.count }})
+            </a>
+            <a href="{% url 'super_admin_collectors' %}?status=PENDING" class="btn btn-warning btn-sm text-dark fw-bold">
+                <i class="bi bi-truck me-1"></i> Verify Collectors ({{ pending_collectors.count }})
+            </a>
+            <a href="{% url 'super_admin_categories' %}" class="btn btn-sa-glass btn-sm">
+                <i class="bi bi-tags me-1"></i> Categories
+            </a>
+        </div>
+    </div>
+
+    <!-- Master KPIs -->
+    <div class="row g-3 mb-4">
+        <div class="col-lg-3 col-6">
+            <div class="sa-card sa-card-stat h-100">
+                <div class="sa-stat-label">Total Secondary Sales</div>
+                <div class="sa-stat-number text-success mt-2">₹{{ total_revenue|floatformat:2 }}</div>
+                <div class="small text-muted mt-1"><i class="bi bi-graph-up-arrow text-success me-1"></i>B2B Marketplace GMV</div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-6">
+            <div class="sa-card sa-card-stat h-100" style="border-left: 4px solid #06b6d4 !important;">
+                <div class="sa-stat-label">Total E-Waste Diverted</div>
+                <div class="sa-stat-number text-info mt-2">{{ total_ewaste_kg|floatformat:1 }} <span class="fs-5">kg</span></div>
+                <div class="small text-muted mt-1"><i class="bi bi-recycle text-info me-1"></i>Zero Landfill Target</div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-6">
+            <div class="sa-card sa-card-stat h-100" style="border-left: 4px solid #f59e0b !important;">
+                <div class="sa-stat-label">Pending Verifications</div>
+                <div class="sa-stat-number text-warning mt-2">
+                    {{ pending_companies.count }} <span class="fs-6 text-muted">Co /</span> {{ pending_collectors.count }} <span class="fs-6 text-muted">Col</span>
+                </div>
+                <div class="small text-muted mt-1"><i class="bi bi-hourglass-split text-warning me-1"></i>Awaiting Approval</div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-6">
+            <div class="sa-card sa-card-stat h-100" style="border-left: 4px solid #8b5cf6 !important;">
+                <div class="sa-stat-label">Platform Role Distribution</div>
+                <div class="mt-2 text-white small fw-semibold">
+                    <div class="d-flex justify-content-between border-bottom border-secondary pb-1 mb-1">
+                        <span>Citizens: {{ role_counts.USER|default:0 }}</span>
+                        <span>Collectors: {{ role_counts.COLLECTOR|default:0 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Admins: {{ role_counts.ADMIN|default:0 }}</span>
+                        <span>Buyers: {{ role_counts.COMPANY|default:0 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Master Sub-Panels Quick Navigation -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4 col-lg">
+            <a href="{% url 'super_admin_ewaste' %}" class="sa-card p-3 text-decoration-none d-block h-100">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="sa-avatar-circle bg-dark text-white"><i class="bi bi-cpu-fill"></i></div>
+                    <div>
+                        <h6 class="fw-bold text-white mb-0">All E-Waste</h6>
+                        <span class="small text-muted">View citizen submissions</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4 col-lg">
+            <a href="{% url 'super_admin_users' %}" class="sa-card p-3 text-decoration-none d-block h-100">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="sa-avatar-circle" style="background: rgba(6, 182, 212, 0.2); color: #06b6d4;"><i class="bi bi-people-fill"></i></div>
+                    <div>
+                        <h6 class="fw-bold text-white mb-0">User Directory</h6>
+                        <span class="small text-muted">Manage all accounts</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4 col-lg">
+            <a href="{% url 'super_admin_collectors' %}" class="sa-card p-3 text-decoration-none d-block h-100">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="sa-avatar-circle" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b;"><i class="bi bi-truck"></i></div>
+                    <div>
+                        <h6 class="fw-bold text-white mb-0">Collectors</h6>
+                        <span class="small text-muted">Fleet & service areas</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-6 col-lg">
+            <a href="{% url 'super_admin_companies' %}" class="sa-card p-3 text-decoration-none d-block h-100">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="sa-avatar-circle" style="background: rgba(99, 102, 241, 0.2); color: #818cf8;"><i class="bi bi-building"></i></div>
+                    <div>
+                        <h6 class="fw-bold text-white mb-0">Companies</h6>
+                        <span class="small text-muted">GST & approvals</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-6 col-lg">
+            <a href="{% url 'super_admin_categories' %}" class="sa-card p-3 text-decoration-none d-block h-100">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="sa-avatar-circle" style="background: rgba(16, 185, 129, 0.2); color: #10b981;"><i class="bi bi-tags-fill"></i></div>
+                    <div>
+                        <h6 class="fw-bold text-white mb-0">Categories</h6>
+                        <span class="small text-muted">Stream configurations</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Pending Verifications Section -->
+    <div class="row g-4 mb-4">
+        <!-- Pending Companies -->
+        <div class="col-lg-6">
+            <div class="sa-card h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-white mb-0"><i class="bi bi-building-check text-warning me-2"></i>Companies Awaiting Verification ({{ pending_companies.count }})</h5>
+                    <a href="{% url 'super_admin_companies' %}" class="btn btn-sa-primary btn-sm">Review All</a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="sa-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Type</th>
+                                <th>GST / CIN</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for comp in pending_companies %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold text-white">{{ comp.company_name }}</div>
+                                        <span class="small text-muted">{{ comp.city }}, {{ comp.state }}</span>
+                                    </td>
+                                    <td class="small text-secondary">{{ comp.get_business_type_display }}</td>
+                                    <td class="small font-monospace text-warning">{{ comp.gst_tax_id|default:comp.registration_number }}</td>
+                                    <td class="text-end">
+                                        <a href="{% url 'super_admin_companies' %}" class="btn btn-sm btn-sa-primary">Inspect</a>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted small">No companies waiting for verification.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Collectors -->
+        <div class="col-lg-6">
+            <div class="sa-card h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-white mb-0"><i class="bi bi-truck text-warning me-2"></i>Collectors Awaiting Approval ({{ pending_collectors.count }})</h5>
+                    <a href="{% url 'super_admin_collectors' %}?status=PENDING" class="btn btn-warning btn-sm text-dark fw-bold">Review All</a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="sa-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Collector</th>
+                                <th>Service Area</th>
+                                <th>Vehicle</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for col in pending_collectors %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold text-white">{{ col.user.get_full_name|default:col.user.username }}</div>
+                                        <span class="small text-muted font-monospace">@{{ col.user.username }} | {{ col.user.phone }}</span>
+                                    </td>
+                                    <td class="small text-secondary">{{ col.service_area }}</td>
+                                    <td class="small text-white">
+                                        {{ col.vehicle_type }}
+                                        {% if col.vehicle_number %}<span class="text-warning font-monospace small d-block">{{ col.vehicle_number }}</span>{% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="{% url 'super_admin_collectors' %}?status=PENDING" class="btn btn-sm btn-warning text-dark fw-bold">Verify</a>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted small">No collectors waiting for approval.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Registered Users Row -->
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="sa-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-white mb-0"><i class="bi bi-people text-info me-2"></i>Recently Registered Users</h5>
+                    <a href="{% url 'super_admin_users' %}" class="btn btn-sa-glass btn-sm">All Users</a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="sa-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Role</th>
+                                <th>Joined</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in recent_users %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold text-white">{{ u.username }}</div>
+                                        <span class="small text-muted">{{ u.email }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ u.get_role_display }}</span>
+                                    </td>
+                                    <td class="small text-muted">{{ u.date_joined|date:"M d, Y" }}</td>
+                                    <td>
+                                        <span class="badge {% if u.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                            {% if u.is_active %}Active{% else %}Inactive{% endif %}
+                                        </span>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted small">No users found.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

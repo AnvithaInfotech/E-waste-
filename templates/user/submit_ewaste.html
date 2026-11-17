@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}Schedule E-Waste Pickup - EcoCycle{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
+                <div>
+                    <h2 class="fw-bold text-dark mb-1">Schedule Doorstep E-Waste Collection 📦</h2>
+                    <p class="text-muted small mb-0">Provide your contact details, pickup location, and e-waste item details. A certified local collector will be assigned.</p>
+                </div>
+                <a href="{% url 'my_ewaste_list' %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> My Requests
+                </a>
+            </div>
+
+            <div class="card card-eco shadow-sm p-4 p-md-5 border-0">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                        <div class="alert alert-danger small p-3 mb-4 rounded-3">
+                            <strong class="d-block mb-2"><i class="bi bi-exclamation-triangle-fill me-1"></i> Please check all required fields:</strong>
+                            <ul class="mb-0 ps-3">
+                                {% for field, error_list in form.errors.items %}
+                                    {% for error in error_list %}
+                                        <li><strong>{% if field != '__all__' %}{{ field|title }}: {% endif %}</strong>{{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <!-- Section 1: Citizen Contact & Location Details -->
+                    <h5 class="fw-bold text-success mb-3 d-flex align-items-center gap-2">
+                        <span class="badge bg-success rounded-circle p-2" style="width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;">1</span>
+                        Your Contact &amp; Pickup Address
+                    </h5>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">First Name *</label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}<div class="text-danger small">{{ form.first_name.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Last Name</label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}<div class="text-danger small">{{ form.last_name.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Contact Phone Number *</label>
+                            {{ form.contact_phone }}
+                            {% if form.contact_phone.errors %}<div class="text-danger small">{{ form.contact_phone.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">City *</label>
+                            {{ form.pickup_city }}
+                            {% if form.pickup_city.errors %}<div class="text-danger small">{{ form.pickup_city.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold small">Complete Pickup Address (House/Flat, Street, Landmark) *</label>
+                            {{ form.pickup_address }}
+                            {% if form.pickup_address.errors %}<div class="text-danger small">{{ form.pickup_address.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">State *</label>
+                            {{ form.pickup_state }}
+                            {% if form.pickup_state.errors %}<div class="text-danger small">{{ form.pickup_state.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Postal PIN Code *</label>
+                            {{ form.pickup_pincode }}
+                            {% if form.pickup_pincode.errors %}<div class="text-danger small">{{ form.pickup_pincode.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Electronic Waste Information -->
+                    <h5 class="fw-bold text-success mb-3 mt-4 d-flex align-items-center gap-2 border-top pt-4">
+                        <span class="badge bg-success rounded-circle p-2" style="width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;">2</span>
+                        Electronic Waste Information
+                    </h5>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-8">
+                            <label class="form-label fw-semibold small">Item / Device Name *</label>
+                            {{ form.waste_name }}
+                            {% if form.waste_name.errors %}<div class="text-danger small">{{ form.waste_name.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small">Category *</label>
+                            {{ form.category }}
+                            {% if form.category.errors %}<div class="text-danger small">{{ form.category.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold small">Description &amp; Condition Details *</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}<div class="text-danger small">{{ form.description.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small">Quantity (Units) *</label>
+                            {{ form.quantity }}
+                            {% if form.quantity.errors %}<div class="text-danger small">{{ form.quantity.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small">Approximate Weight (kg) *</label>
+                            {{ form.approximate_weight_kg }}
+                            {% if form.approximate_weight_kg.errors %}<div class="text-danger small">{{ form.approximate_weight_kg.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small">Item Working Condition *</label>
+                            {{ form.condition }}
+                            {% if form.condition.errors %}<div class="text-danger small">{{ form.condition.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold small">Upload Photo of the Item *</label>
+                            {{ form.primary_image }}
+                            <div class="form-text small">Upload a clear photo of the electronic item, showing physical condition and labels.</div>
+                            {% if form.primary_image.errors %}<div class="text-danger small">{{ form.primary_image.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Schedule Slot & Instructions -->
+                    <h5 class="fw-bold text-success mb-3 mt-4 d-flex align-items-center gap-2 border-top pt-4">
+                        <span class="badge bg-success rounded-circle p-2" style="width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;">3</span>
+                        Preferred Pickup Timing &amp; Notes
+                    </h5>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Preferred Pickup Date *</label>
+                            {{ form.preferred_date }}
+                            {% if form.preferred_date.errors %}<div class="text-danger small">{{ form.preferred_date.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Preferred Time Slot *</label>
+                            {{ form.preferred_time_slot }}
+                            {% if form.preferred_time_slot.errors %}<div class="text-danger small">{{ form.preferred_time_slot.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold small">Special Instructions for Collector (Optional)</label>
+                            {{ form.additional_notes }}
+                            {% if form.additional_notes.errors %}<div class="text-danger small">{{ form.additional_notes.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-eco-primary btn-lg fw-bold py-3 shadow">
+                            <i class="bi bi-send-check-fill me-2"></i> Submit E-Waste Pickup Request
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

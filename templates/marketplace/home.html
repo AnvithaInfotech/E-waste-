@@ -1,0 +1,160 @@
+{% extends 'marketplace/base_marketplace.html' %}
+
+{% block title %}EcoMarket B2B - High-Purity Secondary Raw Materials & Refurbished IT{% endblock %}
+
+{% block content %}
+<!-- 1. High-Impact E-Commerce Hero Banner -->
+<section class="py-5" style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #065f46 100%); color: white; position: relative; overflow: hidden;">
+    <div class="container py-4 position-relative" style="z-index: 2;">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3" style="background: rgba(37, 99, 235, 0.3); border: 1px solid rgba(96, 165, 250, 0.4);">
+                    <span class="badge bg-danger">Flash Deal</span>
+                    <span class="small text-light fw-semibold">Zero-Landfill Circular Sourcing Platform</span>
+                </div>
+                <h1 class="display-4 fw-extrabold mb-3 text-white" style="letter-spacing: -1px; font-weight: 800;">
+                    Industrial Grade Recovered Metals & <span style="color: #60a5fa;">Refurbished Hardware</span>
+                </h1>
+                <p class="lead text-light opacity-80 mb-4" style="font-size: 1.15rem; line-height: 1.6;">
+                    Source certified electrolytic copper cathode, 99.9% ingot, gold/palladium concentrates, server racks, and secondary engineering polymers directly with verified GST invoicing.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{% url 'product_list' %}" class="btn btn-ecom-primary btn-lg px-4 fw-bold">
+                        <i class="bi bi-grid-fill me-2"></i> Explore Catalog
+                    </a>
+                    {% if not user.is_authenticated or user.role != 'COMPANY' %}
+                        <a href="{% url 'register_company' %}" class="btn btn-outline-light btn-lg px-4 fw-bold">
+                            <i class="bi bi-building me-2"></i> Apply for B2B Account
+                        </a>
+                    {% else %}
+                        <a href="{% url 'company_dashboard' %}" class="btn btn-ecom-buy btn-lg px-4 fw-bold">
+                            <i class="bi bi-building me-2"></i> Company Hub
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="col-lg-5">
+                <div class="p-4 rounded-4 shadow-lg border border-secondary" style="background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(12px);">
+                    <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-secondary pb-3">
+                        <div>
+                            <span class="text-uppercase small text-muted fw-bold">Verified Lot #REC-8842</span>
+                            <div class="h5 fw-bold text-white mb-0">High-Purity Electrolytic Copper 99.8%</div>
+                        </div>
+                        <span class="badge bg-success">In Stock</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-baseline mb-3">
+                        <div>
+                            <span class="text-muted small">Spot Price / kg</span>
+                            <div class="h3 fw-bold text-success mb-0">₹720.00</div>
+                        </div>
+                        <div class="text-end">
+                            <span class="text-muted small">Batch Available</span>
+                            <div class="fw-bold text-white">4,850 kg</div>
+                        </div>
+                    </div>
+                    <a href="{% url 'product_list' %}" class="btn btn-outline-info w-100 fw-bold">
+                        <i class="bi bi-file-earmark-bar-graph me-1"></i> View Lab Assay & Buy
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 2. Featured Material Streams / Category Pills -->
+<section class="py-5 bg-white border-bottom">
+    <div class="container py-2">
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 rounded-pill fw-semibold mb-1">Taxonomy</span>
+                <h3 class="fw-bold text-dark mb-0">Browse by Material Stream</h3>
+            </div>
+            <a href="{% url 'product_list' %}" class="small fw-bold text-primary text-decoration-none">All Categories <i class="bi bi-arrow-right"></i></a>
+        </div>
+
+        <div class="row g-3">
+            {% for cat in categories %}
+                <div class="col-lg-2 col-md-4 col-6">
+                    <a href="{% url 'product_list' %}?category={{ cat.slug }}" class="card card-eco p-3 text-center text-decoration-none text-dark h-100">
+                        <div class="category-icon mx-auto mb-2" style="width: 48px; height: 48px; font-size: 1.4rem; background: #eff6ff; color: #2563eb;">
+                            <i class="bi {{ cat.icon_class|default:'bi-cpu' }}"></i>
+                        </div>
+                        <div class="fw-bold small text-truncate">{{ cat.name }}</div>
+                        <span class="text-muted" style="font-size: 0.75rem;">{{ cat.products.count }} listings</span>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- 3. Featured Secondary Commodities & Deals Grid -->
+<section class="py-5" style="background-color: #f8fafc;">
+    <div class="container py-2">
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1 rounded-pill fw-semibold mb-1">Featured Inventory</span>
+                <h3 class="fw-bold text-dark mb-0">High-Demand Recovered Materials</h3>
+            </div>
+            <a href="{% url 'product_list' %}" class="btn btn-outline-primary btn-sm fw-bold">Full Catalog <i class="bi bi-arrow-right"></i></a>
+        </div>
+
+        <div class="row g-4">
+            {% for prod in featured_products %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="ecom-product-card">
+                        <div class="ecom-img-holder">
+                            {% if prod.primary_image %}
+                                <img src="{{ prod.primary_image.url }}" alt="{{ prod.product_name }}">
+                            {% else %}
+                                <i class="bi bi-box-seam text-secondary" style="font-size: 3.5rem;"></i>
+                            {% endif %}
+                            <span class="ecom-badge-purity">{{ prod.get_product_condition_display }}</span>
+                            <span class="ecom-badge-stock">{{ prod.quantity_available }} {{ prod.unit }} in stock</span>
+                        </div>
+                        
+                        <div class="p-4 d-flex flex-column flex-grow-1">
+                            <span class="text-muted small text-uppercase fw-bold">{{ prod.category.name }}</span>
+                            <h5 class="fw-bold text-dark mb-1">
+                                <a href="{% url 'product_detail' prod.slug %}" class="text-dark text-decoration-none">{{ prod.product_name }}</a>
+                            </h5>
+                            <div class="small text-muted font-monospace mb-2">{{ prod.sku }} | {{ prod.material_type }}</div>
+                            <p class="text-muted small flex-grow-1 mb-3">{{ prod.description|truncatewords:12 }}</p>
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <span class="ecom-price-tag">₹{{ prod.effective_price }}</span>
+                                    <span class="ecom-price-unit">/ {{ prod.unit }}</span>
+                                </div>
+                                <div class="text-warning small fw-bold">
+                                    <i class="bi bi-star-fill"></i> {{ prod.rating }}
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'product_detail' prod.slug %}" class="btn btn-outline-primary btn-sm flex-fill fw-bold">
+                                    <i class="bi bi-file-text me-1"></i> Specifications
+                                </a>
+                                {% if user.is_authenticated and user.role == 'COMPANY' %}
+                                    <form method="POST" action="{% url 'add_to_cart' prod.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="quantity" value="1">
+                                        <button type="submit" class="btn btn-ecom-buy btn-sm px-3" title="Add 1 Unit to Cart">
+                                            <i class="bi bi-cart-plus-fill"></i>
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-center py-5 text-muted">
+                    <p>No featured products available at this moment.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

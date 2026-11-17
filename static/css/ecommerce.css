@@ -1,0 +1,425 @@
+/* ==========================================================================
+   B2B E-COMMERCE MARKETPLACE & COMPANY PORTAL - MODERN STOREFRONT THEME
+   ========================================================================== */
+
+:root {
+  --ecom-primary: #2563eb;
+  --ecom-primary-dark: #1d4ed8;
+  --ecom-primary-light: #dbeafe;
+  --ecom-emerald: #059669;
+  --ecom-emerald-light: #ecfdf5;
+  --ecom-deal-red: #ef4444;
+  --ecom-dark: #0f172a;
+  --ecom-gray-bg: #f8fafc;
+  --ecom-border: #e2e8f0;
+  --ecom-text-dark: #0f172a;
+  --ecom-text-muted: #64748b;
+}
+
+body.ecommerce-body {
+  background-color: var(--ecom-gray-bg);
+  color: var(--ecom-text-dark);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 1. Promo Announcement Ticker */
+.ecom-top-ticker {
+  background: #0f172a;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ecom-ticker-badge {
+  background: #ef4444;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.68rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* 2. Main Mega E-Commerce Header */
+.ecom-main-header {
+  background: #ffffff;
+  border-bottom: 1px solid var(--ecom-border);
+  padding: 14px 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+}
+
+.ecom-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.ecom-brand-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2563eb 0%, #059669 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 1.4rem;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.ecom-brand-name {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+}
+
+.ecom-brand-tag {
+  font-size: 0.68rem;
+  color: #2563eb;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+/* Search Bar with Category Dropdown */
+.ecom-search-box {
+  display: flex;
+  align-items: center;
+  border: 2px solid #2563eb;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.ecom-search-select {
+  border: none;
+  background: #f8fafc;
+  border-right: 1px solid var(--ecom-border);
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+  outline: none;
+}
+
+.ecom-search-input {
+  border: none;
+  padding: 9px 14px;
+  font-size: 0.9rem;
+  flex: 1;
+  outline: none;
+}
+
+.ecom-search-btn {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 9px 20px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.ecom-search-btn:hover {
+  background: #1d4ed8;
+}
+
+/* Cart Button in Header */
+.ecom-cart-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  color: #065f46;
+  text-decoration: none;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.ecom-cart-btn:hover {
+  background: #dcfce7;
+  transform: translateY(-1px);
+  color: #065f46;
+}
+
+.ecom-cart-icon-wrapper {
+  position: relative;
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.ecom-cart-counter {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  background: #ef4444;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 800;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 3. Category Navigation Strip */
+.ecom-nav-strip {
+  background: #ffffff;
+  border-bottom: 1px solid var(--ecom-border);
+}
+
+.ecom-category-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  color: #334155;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.ecom-category-link:hover {
+  color: #2563eb;
+}
+
+.ecom-deal-pill {
+  color: #ef4444 !important;
+  font-weight: 700;
+}
+
+/* 4. Trust Badges Bar */
+.ecom-trust-bar {
+  background: #ffffff;
+  border-bottom: 1px solid var(--ecom-border);
+  padding: 14px 0;
+}
+
+.ecom-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ecom-trust-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+/* 5. Modern Product Cards */
+.ecom-product-card {
+  background: #ffffff;
+  border: 1px solid var(--ecom-border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+}
+
+.ecom-product-card:hover {
+  border-color: #93c5fd;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 25px rgba(37, 99, 235, 0.1);
+}
+
+.ecom-img-holder {
+  height: 210px;
+  background: #f1f5f9;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ecom-img-holder img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.ecom-product-card:hover .ecom-img-holder img {
+  transform: scale(1.06);
+}
+
+.ecom-badge-purity {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(4px);
+  color: #38bdf8;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.ecom-badge-stock {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #059669;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.ecom-price-tag {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.ecom-price-unit {
+  font-size: 0.82rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* 6. Buttons */
+.btn-ecom-primary {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #ffffff;
+  border: none;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 10px 20px;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  transition: all 0.2s;
+}
+
+.btn-ecom-primary:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-ecom-buy {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: #ffffff;
+  border: none;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 10px 20px;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+  transition: all 0.2s;
+}
+
+.btn-ecom-buy:hover {
+  background: linear-gradient(135deg, #047857 0%, #064e3b 100%);
+  color: #ffffff;
+}
+
+/* 7. E-Commerce Checkout Stepper */
+.ecom-stepper {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.ecom-stepper::before {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 40px;
+  right: 40px;
+  height: 3px;
+  background: #e2e8f0;
+  z-index: 1;
+}
+
+.ecom-step-item {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  flex: 1;
+}
+
+.ecom-step-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
+  color: #64748b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.ecom-step-item.active .ecom-step-circle {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+}
+
+.ecom-step-item.completed .ecom-step-circle {
+  background: #059669;
+  border-color: #059669;
+  color: #ffffff;
+}
+
+/* 8. E-Commerce Footer */
+.ecom-footer {
+  background: #0f172a;
+  color: #94a3b8;
+  margin-top: auto;
+  border-top: 4px solid #2563eb;
+  padding: 50px 0 20px;
+}
+
+.ecom-footer-heading {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 16px;
+}
+
+.ecom-footer-link {
+  color: #94a3b8;
+  text-decoration: none;
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.88rem;
+  transition: color 0.2s;
+}
+
+.ecom-footer-link:hover {
+  color: #60a5fa;
+}
