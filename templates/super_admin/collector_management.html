@@ -172,58 +172,6 @@
                                         <button type="button" class="btn btn-sm btn-sa-primary" data-bs-toggle="modal" data-bs-target="#verifyCollectorModal{{ col.collector_profile.id }}">
                                             <i class="bi bi-shield-check me-1"></i> Manage
                                         </button>
-
-                                        <!-- Verification Modal -->
-                                        <div class="modal fade" id="verifyCollectorModal{{ col.collector_profile.id }}" tabindex="-1" aria-hidden="true">
-                                            <div class="modal-dialog text-start">
-                                                <div class="modal-content" style="background: #111827; color: #ffffff; border: 1px solid #374151;">
-                                                    <div class="modal-header border-secondary">
-                                                        <h5 class="modal-title fw-bold text-white">
-                                                            <i class="bi bi-truck text-warning me-2"></i>Verify {{ col.get_full_name|default:col.username }}
-                                                        </h5>
-                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <form method="POST">
-                                                        {% csrf_token %}
-                                                        <input type="hidden" name="action" value="UPDATE_STATUS">
-                                                        <input type="hidden" name="collector_profile_id" value="{{ col.collector_profile.id }}">
-                                                        
-                                                        <div class="modal-body">
-                                                            <div class="p-3 rounded-3 small mb-3 border border-secondary" style="background: #1f2937;">
-                                                                <div class="row g-2">
-                                                                    <div class="col-6"><strong class="text-white">Full Name:</strong> <span class="text-secondary">{{ col.get_full_name|default:"Not specified" }}</span></div>
-                                                                    <div class="col-6"><strong class="text-white">Username:</strong> <span class="text-secondary">@{{ col.username }}</span></div>
-                                                                    <div class="col-6"><strong class="text-white">Email:</strong> <span class="text-secondary">{{ col.email }}</span></div>
-                                                                    <div class="col-6"><strong class="text-white">Phone:</strong> <span class="text-secondary">{{ col.phone }}</span></div>
-                                                                    <div class="col-6"><strong class="text-white">Service Area:</strong> <span class="text-secondary">{{ col.collector_profile.service_area }}</span></div>
-                                                                    <div class="col-6"><strong class="text-white">Vehicle:</strong> <span class="text-secondary">{{ col.collector_profile.vehicle_type }} ({{ col.collector_profile.vehicle_number|default:"No plate" }})</span></div>
-                                                                    <div class="col-12"><strong class="text-white">Address:</strong> <span class="text-secondary">{{ col.address|default:"" }} {{ col.city }} {{ col.state }} {{ col.pincode }}</span></div>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="mb-3">
-                                                                <label class="form-label small text-secondary fw-semibold">Approval Status</label>
-                                                                <select name="status" class="form-select sa-form-control">
-                                                                    <option value="VERIFIED" {% if col.collector_profile.verification_status == 'VERIFIED' %}selected{% endif %}>Verified & Approved (Allow Login)</option>
-                                                                    <option value="PENDING" {% if col.collector_profile.verification_status == 'PENDING' %}selected{% endif %}>Pending Verification (Block Login)</option>
-                                                                    <option value="REJECTED" {% if col.collector_profile.verification_status == 'REJECTED' %}selected{% endif %}>Rejected (Block Login)</option>
-                                                                    <option value="SUSPENDED" {% if col.collector_profile.verification_status == 'SUSPENDED' %}selected{% endif %}>Suspended (Block Login)</option>
-                                                                </select>
-                                                            </div>
-
-                                                            <div class="mb-3">
-                                                                <label class="form-label small text-secondary fw-semibold">Remarks / Rejection Reason</label>
-                                                                <textarea name="rejection_reason" class="form-control sa-form-control" rows="2" placeholder="Optional remarks sent to collector in notification">{{ col.collector_profile.rejection_reason|default:'' }}</textarea>
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-footer border-secondary">
-                                                            <button type="button" class="btn btn-sa-glass btn-sm" data-bs-dismiss="modal">Close</button>
-                                                            <button type="submit" class="btn btn-sa-gold btn-sm fw-bold">Save Status</button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </td>
                                 </tr>
                             {% empty %}
@@ -240,5 +188,59 @@
             </div>
         </div>
     </div>
+
+    <!-- Verification Modals (Rendered outside table and sa-card to avoid backdrop layering and clipping issues) -->
+    {% for col in collectors %}
+        <div class="modal fade" id="verifyCollectorModal{{ col.collector_profile.id }}" tabindex="-1" aria-labelledby="verifyCollectorModalLabel{{ col.collector_profile.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered text-start">
+                <div class="modal-content" style="background: #111827; color: #ffffff; border: 1px solid #374151;">
+                    <div class="modal-header border-secondary">
+                        <h5 class="modal-title fw-bold text-white" id="verifyCollectorModalLabel{{ col.collector_profile.id }}">
+                            <i class="bi bi-truck text-warning me-2"></i>Verify {{ col.get_full_name|default:col.username }}
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="UPDATE_STATUS">
+                        <input type="hidden" name="collector_profile_id" value="{{ col.collector_profile.id }}">
+                        
+                        <div class="modal-body">
+                            <div class="p-3 rounded-3 small mb-3 border border-secondary" style="background: #1f2937;">
+                                <div class="row g-2">
+                                    <div class="col-6"><strong class="text-white">Full Name:</strong> <span class="text-secondary">{{ col.get_full_name|default:"Not specified" }}</span></div>
+                                    <div class="col-6"><strong class="text-white">Username:</strong> <span class="text-secondary">@{{ col.username }}</span></div>
+                                    <div class="col-6"><strong class="text-white">Email:</strong> <span class="text-secondary">{{ col.email }}</span></div>
+                                    <div class="col-6"><strong class="text-white">Phone:</strong> <span class="text-secondary">{{ col.phone }}</span></div>
+                                    <div class="col-6"><strong class="text-white">Service Area:</strong> <span class="text-secondary">{{ col.collector_profile.service_area }}</span></div>
+                                    <div class="col-6"><strong class="text-white">Vehicle:</strong> <span class="text-secondary">{{ col.collector_profile.vehicle_type }} ({{ col.collector_profile.vehicle_number|default:"No plate" }})</span></div>
+                                    <div class="col-12"><strong class="text-white">Address:</strong> <span class="text-secondary">{{ col.address|default:"" }} {{ col.city }} {{ col.state }} {{ col.pincode }}</span></div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small text-secondary fw-semibold">Approval Status</label>
+                                <select name="status" class="form-select sa-form-control">
+                                    <option value="VERIFIED" {% if col.collector_profile.verification_status == 'VERIFIED' %}selected{% endif %}>Verified & Approved (Allow Login)</option>
+                                    <option value="PENDING" {% if col.collector_profile.verification_status == 'PENDING' %}selected{% endif %}>Pending Verification (Block Login)</option>
+                                    <option value="REJECTED" {% if col.collector_profile.verification_status == 'REJECTED' %}selected{% endif %}>Rejected (Block Login)</option>
+                                    <option value="SUSPENDED" {% if col.collector_profile.verification_status == 'SUSPENDED' %}selected{% endif %}>Suspended (Block Login)</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small text-secondary fw-semibold">Remarks / Rejection Reason</label>
+                                <textarea name="rejection_reason" class="form-control sa-form-control" rows="2" placeholder="Optional remarks sent to collector in notification">{{ col.collector_profile.rejection_reason|default:'' }}</textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-secondary">
+                            <button type="button" class="btn btn-sa-glass btn-sm" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-sa-gold btn-sm fw-bold">Save Status</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
 </div>
 {% endblock %}

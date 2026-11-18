@@ -62,48 +62,6 @@
                                 <button type="button" class="btn btn-sm btn-sa-primary" data-bs-toggle="modal" data-bs-target="#verifyModal{{ comp.id }}">
                                     <i class="bi bi-shield-check me-1"></i> Manage
                                 </button>
-
-                                <!-- Verification Modal (Dark Executive) -->
-                                <div class="modal fade" id="verifyModal{{ comp.id }}" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog text-start">
-                                        <div class="modal-content" style="background: #111827; color: #ffffff; border: 1px solid #374151;">
-                                            <div class="modal-header border-secondary">
-                                                <h5 class="modal-title fw-bold text-white">Verify {{ comp.company_name }}</h5>
-                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <form method="POST">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="company_id" value="{{ comp.id }}">
-                                                
-                                                <div class="modal-body">
-                                                    <div class="p-3 rounded-3 small mb-3 border border-secondary" style="background: #1f2937;">
-                                                        <strong class="text-white">HQ Address:</strong> <span class="text-secondary">{{ comp.corporate_address }}</span><br>
-                                                        <strong class="text-white">Description:</strong> <span class="text-secondary">{{ comp.business_description|default:"No description provided." }}</span>
-                                                    </div>
-
-                                                    <div class="mb-3">
-                                                        <label class="form-label small text-secondary fw-semibold">Update Status</label>
-                                                        <select name="status" class="form-select sa-form-control">
-                                                            <option value="VERIFIED" {% if comp.verification_status == 'VERIFIED' %}selected{% endif %}>Verified & Approved</option>
-                                                            <option value="PENDING" {% if comp.verification_status == 'PENDING' %}selected{% endif %}>Pending Verification</option>
-                                                            <option value="REJECTED" {% if comp.verification_status == 'REJECTED' %}selected{% endif %}>Rejected</option>
-                                                            <option value="SUSPENDED" {% if comp.verification_status == 'SUSPENDED' %}selected{% endif %}>Suspended</option>
-                                                        </select>
-                                                    </div>
-
-                                                    <div class="mb-3">
-                                                        <label class="form-label small text-secondary fw-semibold">Remarks / Rejection Reason</label>
-                                                        <textarea name="rejection_reason" class="form-control sa-form-control" rows="2" placeholder="Optional notes sent to company">{{ comp.rejection_reason|default:'' }}</textarea>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer border-secondary">
-                                                    <button type="button" class="btn btn-sa-glass btn-sm" data-bs-dismiss="modal">Close</button>
-                                                    <button type="submit" class="btn btn-sa-primary btn-sm">Save Status</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
                             </td>
                         </tr>
                     {% empty %}
@@ -115,5 +73,55 @@
             </table>
         </div>
     </div>
+
+    <!-- Verification Modals (Rendered outside table and sa-card to avoid backdrop layering and clipping issues) -->
+    {% for comp in companies %}
+        <div class="modal fade" id="verifyModal{{ comp.id }}" tabindex="-1" aria-labelledby="verifyModalLabel{{ comp.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered text-start">
+                <div class="modal-content" style="background: #111827; color: #ffffff; border: 1px solid #374151;">
+                    <div class="modal-header border-secondary">
+                        <h5 class="modal-title fw-bold text-white" id="verifyModalLabel{{ comp.id }}">
+                            <i class="bi bi-building-check text-primary me-2"></i>Verify {{ comp.company_name }}
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="company_id" value="{{ comp.id }}">
+                        
+                        <div class="modal-body">
+                            <div class="p-3 rounded-3 small mb-3 border border-secondary" style="background: #1f2937;">
+                                <div class="mb-1"><strong class="text-white">HQ Address:</strong> <span class="text-secondary">{{ comp.corporate_address }}</span></div>
+                                <div class="mb-1"><strong class="text-white">Description:</strong> <span class="text-secondary">{{ comp.business_description|default:"No description provided." }}</span></div>
+                                <div class="row g-2 mt-1">
+                                    <div class="col-6"><strong class="text-white">GST / Tax ID:</strong> <span class="text-warning">{{ comp.gst_tax_id|default:"Pending" }}</span></div>
+                                    <div class="col-6"><strong class="text-white">CIN / Reg:</strong> <span class="text-secondary font-monospace">{{ comp.registration_number }}</span></div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small text-secondary fw-semibold">Update Status</label>
+                                <select name="status" class="form-select sa-form-control">
+                                    <option value="VERIFIED" {% if comp.verification_status == 'VERIFIED' %}selected{% endif %}>Verified & Approved</option>
+                                    <option value="PENDING" {% if comp.verification_status == 'PENDING' %}selected{% endif %}>Pending Verification</option>
+                                    <option value="REJECTED" {% if comp.verification_status == 'REJECTED' %}selected{% endif %}>Rejected</option>
+                                    <option value="SUSPENDED" {% if comp.verification_status == 'SUSPENDED' %}selected{% endif %}>Suspended</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small text-secondary fw-semibold">Remarks / Rejection Reason</label>
+                                <textarea name="rejection_reason" class="form-control sa-form-control" rows="2" placeholder="Optional notes sent to company">{{ comp.rejection_reason|default:'' }}</textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-secondary">
+                            <button type="button" class="btn btn-sa-glass btn-sm" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-sa-primary btn-sm">Save Status</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
 </div>
 {% endblock %}

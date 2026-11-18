@@ -432,6 +432,21 @@ body.super-admin-body {
   color: #ffffff !important;
 }
 
+/* Super Admin Modal & Select Options */
+.modal {
+  z-index: 1060;
+}
+
+.modal-backdrop {
+  z-index: 1050;
+}
+
+.sa-form-control option,
+.form-select.sa-form-control option {
+  background-color: #1f2937 !important;
+  color: #ffffff !important;
+}
+
 /* Responsive */
 @media (max-width: 991.98px) {
   .sa-sidebar {
